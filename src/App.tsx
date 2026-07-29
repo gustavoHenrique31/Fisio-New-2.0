@@ -33,8 +33,8 @@ const INSTAGRAM_URL = 'https://instagram.com';
 const FACEBOOK_URL = 'https://facebook.com';
 const YOUTUBE_URL = 'https://youtube.com';
 
-const BODY_FRONT_IMAGE = '/assets/defrente.png';
-const BODY_BACK_IMAGE = '/assets/decosta.png';
+const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
+const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
 
 const ZONE_VIDEOS: Record<string, string> = {
   'Cabeça e Cervical': '',
@@ -155,11 +155,6 @@ function App() {
   const handleZoneClick = (zoneId: string) => {
     resetForm();
     setSelectedZone(zoneId);
-  };
-
-  const openFormModal = () => {
-    resetForm();
-    setShowFormModal(true);
   };
 
   return (
@@ -438,60 +433,62 @@ function App() {
                   if (zoneId) handleZoneClick(zoneId);
                 }}
               >
-               {activeView === 'front' ? (
-  <g className={hoveredZone ? 'zone-dimmed' : ''}>
-    {/* Cabeça e Cervical */}
-    <ellipse data-zone-id="head_neck" cx="200" cy="60" rx="55" ry="65" className="body-zone" />
-    {/* Ombros - mais próximos do corpo */}
-    <ellipse data-zone-id="shoulder" cx="130" cy="150" rx="35" ry="25" className="body-zone" />
-    <ellipse data-zone-id="shoulder" cx="270" cy="150" rx="35" ry="25" className="body-zone" />
-    {/* Peito e Tórax */}
-    <rect data-zone-id="chest" x="155" y="135" width="90" height="80" rx="15" className="body-zone" />
-    {/* Cotovelos - mais próximos do corpo e mais para cima */}
-    <circle data-zone-id="elbow" cx="105" cy="235" r="20" className="body-zone" />
-    <circle data-zone-id="elbow" cx="295" cy="235" r="20" className="body-zone" />
-    {/* Punhos e Mãos - mais próximos do corpo e um pouco para cima */}
-    <circle data-zone-id="wrist" cx="95" cy="305" r="16" className="body-zone" />
-    <circle data-zone-id="wrist" cx="305" cy="305" r="16" className="body-zone" />
-    {/* Coluna Torácica */}
-    <rect data-zone-id="thoracic" x="170" y="195" width="60" height="95" rx="15" className="body-zone" />
-    {/* Coluna Lombar */}
-    <rect data-zone-id="lumbar" x="175" y="290" width="50" height="80" rx="15" className="body-zone" />
-    {/* Quadril - mais próximos do corpo e mais para cima */}
-    <circle data-zone-id="hip" cx="162" cy="380" r="32" className="body-zone" />
-    <circle data-zone-id="hip" cx="238" cy="380" r="32" className="body-zone" />
-    {/* Joelhos - mais próximos do corpo e mais para cima */}
-    <circle data-zone-id="knee" cx="165" cy="475" r="26" className="body-zone" />
-    <circle data-zone-id="knee" cx="235" cy="475" r="26" className="body-zone" />
-    {/* Tornozelos e Pés - mais próximos do corpo e mais para cima */}
-    <circle data-zone-id="ankle" cx="162" cy="570" r="22" className="body-zone" />
-    <circle data-zone-id="ankle" cx="238" cy="570" r="22" className="body-zone" />
-  </g>
-) : (
-  <g className={hoveredZone ? 'zone-dimmed' : ''}>
-    {/* Cabeça e Cervical */}
-    <ellipse data-zone-id="head_neck" cx="200" cy="60" rx="55" ry="65" className="body-zone" />
-    {/* Ombros - mais próximos do corpo */}
-    <ellipse data-zone-id="shoulder" cx="130" cy="150" rx="35" ry="25" className="body-zone" />
-    <ellipse data-zone-id="shoulder" cx="270" cy="150" rx="35" ry="25" className="body-zone" />
-    {/* Coluna Torácica */}
-    <rect data-zone-id="thoracic" x="170" y="195" width="60" height="95" rx="15" className="body-zone" />
-    {/* Cotovelos - mais próximos do corpo e mais para cima */}
-    <circle data-zone-id="elbow" cx="105" cy="235" r="20" className="body-zone" />
-    <circle data-zone-id="elbow" cx="295" cy="235" r="20" className="body-zone" />
-    {/* Coluna Lombar */}
-    <rect data-zone-id="lumbar" x="175" y="290" width="50" height="80" rx="15" className="body-zone" />
-    {/* Quadril - mais próximos do corpo e mais para cima */}
-    <circle data-zone-id="hip" cx="162" cy="380" r="32" className="body-zone" />
-    <circle data-zone-id="hip" cx="238" cy="380" r="32" className="body-zone" />
-    {/* Joelhos - mais próximos do corpo e mais para cima */}
-    <circle data-zone-id="knee" cx="165" cy="475" r="26" className="body-zone" />
-    <circle data-zone-id="knee" cx="235" cy="475" r="26" className="body-zone" />
-    {/* Tornozelos e Pés - mais próximos do corpo e mais para cima */}
-    <circle data-zone-id="ankle" cx="162" cy="570" r="22" className="body-zone" />
-    <circle data-zone-id="ankle" cx="238" cy="570" r="22" className="body-zone" />
-  </g>
-)}
+                {activeView === 'front' ? (
+                  <g className={hoveredZone ? 'zone-dimmed' : ''}>
+                    {/* Cabeça e Cervical */}
+                    <ellipse data-zone-id="head_neck" cx="200" cy="60" rx="55" ry="65" className="body-zone" />
+                    {/* Ombros - mais próximos do corpo */}
+                    <ellipse data-zone-id="shoulder" cx="130" cy="150" rx="35" ry="25" className="body-zone" />
+                    <ellipse data-zone-id="shoulder" cx="270" cy="150" rx="35" ry="25" className="body-zone" />
+                    {/* Peito e Tórax */}
+                    <rect data-zone-id="chest" x="155" y="135" width="90" height="80" rx="15" className="body-zone" />
+                    {/* Cotovelos - mais próximos do corpo e mais para cima */}
+                    <circle data-zone-id="elbow" cx="105" cy="235" r="20" className="body-zone" />
+                    <circle data-zone-id="elbow" cx="295" cy="235" r="20" className="body-zone" />
+                    {/* Punhos e Mãos - mais próximos do corpo e um pouco para cima */}
+                    <circle data-zone-id="wrist" cx="95" cy="305" r="16" className="body-zone" />
+                    <circle data-zone-id="wrist" cx="305" cy="305" r="16" className="body-zone" />
+                    {/* Coluna Torácica */}
+                    <rect data-zone-id="thoracic" x="170" y="195" width="60" height="95" rx="15" className="body-zone" />
+                    {/* Coluna Lombar */}
+                    <rect data-zone-id="lumbar" x="175" y="290" width="50" height="80" rx="15" className="body-zone" />
+                    {/* Quadril - mais próximos do corpo e mais para cima */}
+                    <circle data-zone-id="hip" cx="162" cy="380" r="32" className="body-zone" />
+                    <circle data-zone-id="hip" cx="238" cy="380" r="32" className="body-zone" />
+                    {/* Joelhos - mais próximos do corpo e mais para cima */}
+                    <circle data-zone-id="knee" cx="165" cy="475" r="26" className="body-zone" />
+                    <circle data-zone-id="knee" cx="235" cy="475" r="26" className="body-zone" />
+                    {/* Tornozelos e Pés - mais próximos do corpo e mais para cima */}
+                    <circle data-zone-id="ankle" cx="162" cy="570" r="22" className="body-zone" />
+                    <circle data-zone-id="ankle" cx="238" cy="570" r="22" className="body-zone" />
+                  </g>
+                ) : (
+                  <g className={hoveredZone ? 'zone-dimmed' : ''}>
+                    {/* Cabeça e Cervical */}
+                    <ellipse data-zone-id="head_neck" cx="200" cy="60" rx="55" ry="65" className="body-zone" />
+                    {/* Ombros - mais próximos do corpo */}
+                    <ellipse data-zone-id="shoulder" cx="130" cy="150" rx="35" ry="25" className="body-zone" />
+                    <ellipse data-zone-id="shoulder" cx="270" cy="150" rx="35" ry="25" className="body-zone" />
+                    {/* Coluna Torácica */}
+                    <rect data-zone-id="thoracic" x="170" y="195" width="60" height="95" rx="15" className="body-zone" />
+                    {/* Cotovelos - mais próximos do corpo e mais para cima */}
+                    <circle data-zone-id="elbow" cx="105" cy="235" r="20" className="body-zone" />
+                    <circle data-zone-id="elbow" cx="295" cy="235" r="20" className="body-zone" />
+                    {/* Coluna Lombar */}
+                    <rect data-zone-id="lumbar" x="175" y="290" width="50" height="80" rx="15" className="body-zone" />
+                    {/* Quadril - mais próximos do corpo e mais para cima */}
+                    <circle data-zone-id="hip" cx="162" cy="380" r="32" className="body-zone" />
+                    <circle data-zone-id="hip" cx="238" cy="380" r="32" className="body-zone" />
+                    {/* Joelhos - mais próximos do corpo e mais para cima */}
+                    <circle data-zone-id="knee" cx="165" cy="475" r="26" className="body-zone" />
+                    <circle data-zone-id="knee" cx="235" cy="475" r="26" className="body-zone" />
+                    {/* Tornozelos e Pés - mais próximos do corpo e mais para cima */}
+                    <circle data-zone-id="ankle" cx="162" cy="570" r="22" className="body-zone" />
+                    <circle data-zone-id="ankle" cx="238" cy="570" r="22" className="body-zone" />
+                  </g>
+                )}
+              </svg>
+            </div>
             
             {hoveredZone && (
               <div className="absolute top-2 left-1/2 -translate-x-1/2 liquid-glass rounded-full px-3 py-1 text-xs sm:text-sm font-medium text-teal-300 shadow-lg pointer-events-none z-10 whitespace-nowrap">
