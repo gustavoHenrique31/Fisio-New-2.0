@@ -45,7 +45,7 @@ const ZONE_VIDEOS: Record<string, string> = {
 };
 
 // URLs das imagens do corpo
-const BODY_FRONT_IMAGE = '/assets/defrente.png'
+const BODY_FRONT_IMAGE = '/assets/defrente.png';
 const BODY_BACK_IMAGE = '/assets/decosta.png';
 // --- FIM DAS CONFIGURAÇÕES ---
 
