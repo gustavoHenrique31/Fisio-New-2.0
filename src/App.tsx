@@ -33,8 +33,8 @@ const INSTAGRAM_URL = 'https://instagram.com';
 const FACEBOOK_URL = 'https://facebook.com';
 const YOUTUBE_URL = 'https://youtube.com';
 
-const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
-const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
+const BODY_FRONT_IMAGE = '/assets/defrente.png';
+const BODY_BACK_IMAGE = '/assets/decosta.png';
 
 const ZONE_VIDEOS: Record<string, string> = {
   'Cabeça e Cervical': '',
