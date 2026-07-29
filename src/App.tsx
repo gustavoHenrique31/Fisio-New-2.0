@@ -45,8 +45,8 @@ const ZONE_VIDEOS: Record<string, string> = {
 };
 
 // URLs das imagens do corpo
-const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
-const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
+const BODY_FRONT_IMAGE = 'https://chatgpt.com/backend-api/estuary/content?id=file_000000005ea8820eaddf0a3b9190f29b&ts=495933&p=fs&cid=1&sig=8cc831f100022c8052ed72d6a232af27fe81055f52403027b8703336dcf63f6b&v=0';
+const BODY_BACK_IMAGE = 'https://chatgpt.com/backend-api/estuary/content?id=file_00000000c644820ebff616f585da5cd2&ts=495933&p=fs&cid=1&sig=93debca487a9d68fb4b33b46b19aad4d37816ed10c9f062aae7c37ddfc44f046&v=0';
 // --- FIM DAS CONFIGURAÇÕES ---
 
 interface ZoneData {
