@@ -40,8 +40,8 @@ const INSTAGRAM_URL = 'https://instagram.com';
 const FACEBOOK_URL = 'https://facebook.com';
 const YOUTUBE_URL = 'https://youtube.com';
 
-// Chave da API DeepSeek (substitua pela sua)
-const DEEPSEEK_API_KEY = 'sk-2d723de6f58e48b7abab17a0776a5896';
+// Chave da API Gemini
+const GEMINI_API_KEY = 'AQ.Ab8RN6JiKkJuwWGc41YUPYupn2PLruHRH_q6xeXvSiMhGxpb1g';
 
 const BODY_FRONT_IMAGE = '/assets/defrente.png';
 const BODY_BACK_IMAGE = '/assets/decosta.png';
@@ -122,7 +122,6 @@ function App() {
   const [formError, setFormError] = useState('');
   const [scrolled, setScrolled] = useState(false);
 
-  // Chat states
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: 'Olá! Sou o assistente virtual da FisioNew. Como posso ajudar você hoje? Pergunte sobre dores, tratamentos ou áreas específicas do corpo.' }
   ]);
@@ -200,7 +199,6 @@ function App() {
     setSelectedZone(zoneId);
   };
 
-  // Função para enviar mensagem para API DeepSeek
   const sendChatMessage = async () => {
     if (!chatInput.trim() || chatLoading) return;
 
@@ -210,57 +208,42 @@ function App() {
     setChatLoading(true);
 
     try {
-      // URL correta da API DeepSeek
-      const response = await fetch('https://api.deepseek.com/chat/completions', {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
+          contents: [
             {
-              role: 'system',
-              content: 'Você é um assistente virtual de uma clínica de fisioterapia chamada FisioNew. Responda de forma acolhedora, profissional e direta. Limite-se a perguntas sobre fisioterapia, dores musculares, lesões ortopédicas, recuperação e bem-estar. Não dê diagnósticos médicos, sempre recomende consultar um especialista. Mantenha respostas curtas (máximo 4 frases).'
-            },
-            ...chatMessages.map(m => ({ role: m.role, content: m.content })),
-            { role: 'user', content: userMessage }
+              parts: [{
+                text: `Você é um assistente virtual de uma clínica de fisioterapia chamada FisioNew. Responda de forma acolhedora, profissional e direta. Limite-se a perguntas sobre fisioterapia, dores musculares, lesões ortopédicas, recuperação e bem-estar. Não dê diagnósticos médicos, sempre recomende consultar um especialista. Mantenha respostas curtas (máximo 4 frases).\n\nHistórico da conversa:\n${chatMessages.map(m => `${m.role === 'user' ? 'Usuário' : 'Assistente'}: ${m.content}`).join('\n')}\n\nUsuário: ${userMessage}`
+              }]
+            }
           ],
-          max_tokens: 300,
-          temperature: 0.7,
-          stream: false
+          generationConfig: {
+            maxOutputTokens: 300,
+            temperature: 0.7,
+          }
         })
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Erro DeepSeek:', response.status, errorData);
-        throw new Error(`Erro ${response.status}: ${errorData.error?.message || 'Falha na requisição'}`);
+        console.error('Erro Gemini:', response.status, errorData);
+        throw new Error(`Erro ${response.status}`);
       }
 
       const data = await response.json();
-      const assistantMessage = data.choices[0].message.content;
+      const assistantMessage = data.candidates[0].content.parts[0].text;
       
       setChatMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
     } catch (error) {
       console.error('Erro no chat:', error);
       
-      let errorMessage = 'Desculpe, estou com dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo WhatsApp para falar com um especialista.';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('401')) {
-          errorMessage = 'Erro de autenticação. Por favor, verifique se a chave da API está correta.';
-        } else if (error.message.includes('429')) {
-          errorMessage = 'Muitas solicitações. Por favor, aguarde um momento e tente novamente.';
-        } else if (error.message.includes('500')) {
-          errorMessage = 'O servidor está temporariamente indisponível. Tente novamente em alguns instantes.';
-        }
-      }
-      
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: errorMessage
+        content: 'Desculpe, estou com dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo WhatsApp para falar com um especialista.'
       }]);
     } finally {
       setChatLoading(false);
@@ -518,7 +501,6 @@ function App() {
         <div className="max-w-7xl mx-auto w-full">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             
-            {/* Coluna da Esquerda */}
             <div className="animate-fade-in-left order-2 lg:order-1">
               <div className="space-y-8">
                 <div>
@@ -559,7 +541,6 @@ function App() {
               </div>
             </div>
 
-            {/* Coluna da Direita - Corpo Interativo */}
             <div className="animate-fade-in-right order-1 lg:order-2 flex flex-col items-center">
               <div className="liquid-glass rounded-full p-1 flex mb-8">
                 <button onClick={() => setActiveView('front')}
@@ -809,12 +790,11 @@ function App() {
         </div>
       )}
 
-      {/* Modal de Chat com IA */}
+      {/* Modal de Chat com IA (Gemini) */}
       {showChatModal && (
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowChatModal(false)} />
           <div className="relative w-full max-w-lg liquid-glass rounded-3xl bg-black/70 backdrop-blur-2xl animate-modal-in shadow-2xl shadow-teal-400/5 flex flex-col" style={{ height: '600px', maxHeight: '85vh' }}>
-            {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-white/5">
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -831,7 +811,6 @@ function App() {
               </button>
             </div>
 
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto drawer-scroll p-5 space-y-4">
               {chatMessages.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -854,7 +833,6 @@ function App() {
               <div ref={chatEndRef} />
             </div>
 
-            {/* Input */}
             <div className="p-5 border-t border-white/5">
               <div className="flex gap-3">
                 <input
