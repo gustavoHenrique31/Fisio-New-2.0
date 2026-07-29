@@ -31,6 +31,10 @@ const INSTAGRAM_URL = 'https://instagram.com';
 const FACEBOOK_URL = 'https://facebook.com';
 const YOUTUBE_URL = 'https://youtube.com';
 
+// URLs das imagens do corpo
+const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
+const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
+
 const ZONE_VIDEOS: Record<string, string> = {
   'Cabeça e Cervical': '',
   Ombro: '',
@@ -43,10 +47,6 @@ const ZONE_VIDEOS: Record<string, string> = {
   Joelho: '',
   'Tornozelo e Pé': '',
 };
-
-// URLs das imagens do corpo
-const BODY_FRONT_IMAGE = '/assets/defrente.png';
-const BODY_BACK_IMAGE = '/assets/decosta.png';
 // --- FIM DAS CONFIGURAÇÕES ---
 
 interface ZoneData {
@@ -116,7 +116,6 @@ function App() {
     return () => { document.body.style.overflow = '' };
   }, [menuOpen]);
 
-  // Scroll to top of drawer content when zone changes
   useEffect(() => {
     if (selectedZone && drawerContentRef.current) {
       drawerContentRef.current.scrollTop = 0;
@@ -306,7 +305,6 @@ function App() {
           <div className="w-full max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               
-              {/* Coluna da esquerda - Texto */}
               <div>
                 <div className="animate-fade-in-up">
                   <div className="liquid-glass rounded-full inline-flex items-center gap-2.5 sm:gap-3 px-3 py-1.5 sm:px-4 sm:py-2 mb-5 sm:mb-6">
@@ -349,7 +347,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Coluna da direita - Cards de benefícios */}
               <div className="animate-fade-in-up-delay-2 grid grid-cols-2 gap-4">
                 {HERO_BENEFITS.map((benefit, idx) => {
                   const Icon = benefit.icon;
@@ -361,7 +358,6 @@ function App() {
                   );
                 })}
                 
-                {/* Card extra de estatística */}
                 <div className="liquid-glass rounded-2xl p-6 backdrop-blur-md text-center col-span-2 bg-teal-500/5">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Sparkles className="h-5 w-5 text-teal-400" />
@@ -398,11 +394,12 @@ function App() {
           </button>
         </div>
 
-        <div className="relative w-full max-w-[350px] sm:max-w-[420px] md:max-w-[500px] lg:max-w-[580px] mx-auto">
-          <div className="liquid-glass rounded-3xl p-6 sm:p-10 backdrop-blur-md bg-black/20 relative">
+        {/* Container do corpo AJUSTADO - menor e centralizado */}
+        <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[400px] mx-auto">
+          <div className="liquid-glass rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-md bg-black/20 relative">
             
-            {/* Imagem do corpo humano */}
-            <div className="relative w-full" style={{ maxWidth: '400px', margin: '0 auto' }}>
+            {/* Imagem do corpo humano - menor */}
+            <div className="relative w-full max-w-[260px] sm:max-w-[280px] md:max-w-[300px] mx-auto">
               <img 
                 src={activeView === 'front' ? BODY_FRONT_IMAGE : BODY_BACK_IMAGE}
                 alt={activeView === 'front' ? 'Corpo humano frente' : 'Corpo humano costas'}
@@ -466,7 +463,7 @@ function App() {
             </div>
             
             {hoveredZone && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 liquid-glass rounded-full px-4 py-1.5 text-sm font-medium text-teal-300 shadow-lg pointer-events-none z-10">
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 liquid-glass rounded-full px-3 py-1 text-xs sm:text-sm font-medium text-teal-300 shadow-lg pointer-events-none z-10 whitespace-nowrap">
                 {ZONES.find(z => z.id === hoveredZone)?.title}
               </div>
             )}
