@@ -168,15 +168,16 @@ function App() {
           vector-effect: non-scaling-stroke;
         }
         .body-zone:hover {
-          stroke: rgba(255, 255, 255, 0.6);
-          filter: drop-shadow(0 0 8px rgba(94, 234, 212, 0.5));
+          stroke: rgba(94, 234, 212, 0.8);
+          stroke-width: 2px;
+          filter: drop-shadow(0 0 12px rgba(94, 234, 212, 0.6));
         }
         .zone-dimmed .body-zone {
-          opacity: 0.4;
+          opacity: 0.3;
         }
         .zone-dimmed .body-zone:hover {
           opacity: 1;
-          stroke: rgba(255, 255, 255, 0.8);
+          stroke: rgba(94, 234, 212, 0.9);
         }
         .drawer-scroll::-webkit-scrollbar { width: 4px; }
         .drawer-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -305,71 +306,93 @@ function App() {
           </button>
         </div>
 
-        <div className="relative w-full max-w-[320px] sm:max-w-[400px] md:max-w-[480px] lg:max-w-[560px] mx-auto">
-          <div className="liquid-glass rounded-3xl p-6 sm:p-10 backdrop-blur-md bg-black/20">
-            <svg
-              viewBox="0 0 256 440"
-              className={`w-full h-auto transition-all duration-300 ${hoveredZone ? 'zone-dimmed' : ''}`}
-              onMouseOver={(e) => {
-                const target = e.target as SVGElement;
-                const zoneId = target.getAttribute('data-zone-id');
-                if (zoneId) setHoveredZone(zoneId);
-              }}
-              onMouseOut={() => setHoveredZone(null)}
-              onClick={(e) => {
-                const target = e.target as SVGElement;
-                const zoneId = target.getAttribute('data-zone-id');
-                if (zoneId) handleZoneClick(zoneId);
-              }}
-            >
-              <g fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5">
-                <circle cx="128" cy="52" r="32" />
-                <line x1="128" y1="84" x2="128" y2="100" />
-                <rect x="88" y="100" width="80" height="130" rx="20" />
-                <path d="M88 110 L40 180 L35 240" />
-                <path d="M168 110 L216 180 L221 240" />
-                <path d="M108 230 L95 380 L80 400" />
-                <path d="M148 230 L161 380 L176 400" />
-              </g>
-              {activeView === 'front' ? (
-                <g>
-                  <circle data-zone-id="head_neck" cx="128" cy="52" r="32" className="body-zone" />
-                  <ellipse data-zone-id="shoulder" cx="80" cy="100" rx="22" ry="18" className="body-zone" />
-                  <ellipse data-zone-id="shoulder" cx="176" cy="100" rx="22" ry="18" className="body-zone" />
-                  <circle data-zone-id="elbow" cx="70" cy="170" r="15" className="body-zone" />
-                  <circle data-zone-id="elbow" cx="186" cy="170" r="15" className="body-zone" />
-                  <circle data-zone-id="wrist" cx="62" cy="240" r="13" className="body-zone" />
-                  <circle data-zone-id="wrist" cx="194" cy="240" r="13" className="body-zone" />
-                  <rect data-zone-id="thoracic" x="100" y="100" width="56" height="70" rx="12" className="body-zone" />
-                  <rect data-zone-id="chest" x="100" y="100" width="56" height="50" rx="12" className="body-zone" />
-                  <rect data-zone-id="lumbar" x="106" y="170" width="44" height="60" rx="12" className="body-zone" />
-                  <circle data-zone-id="hip" cx="100" cy="230" r="22" className="body-zone" />
-                  <circle data-zone-id="hip" cx="156" cy="230" r="22" className="body-zone" />
-                  <circle data-zone-id="knee" cx="100" cy="310" r="18" className="body-zone" />
-                  <circle data-zone-id="knee" cx="156" cy="310" r="18" className="body-zone" />
-                  <circle data-zone-id="ankle" cx="100" cy="390" r="16" className="body-zone" />
-                  <circle data-zone-id="ankle" cx="156" cy="390" r="16" className="body-zone" />
-                </g>
-              ) : (
-                <g>
-                  <circle data-zone-id="head_neck" cx="128" cy="52" r="32" className="body-zone" />
-                  <ellipse data-zone-id="shoulder" cx="80" cy="100" rx="22" ry="18" className="body-zone" />
-                  <ellipse data-zone-id="shoulder" cx="176" cy="100" rx="22" ry="18" className="body-zone" />
-                  <circle data-zone-id="elbow" cx="70" cy="170" r="15" className="body-zone" />
-                  <circle data-zone-id="elbow" cx="186" cy="170" r="15" className="body-zone" />
-                  <rect data-zone-id="thoracic" x="100" y="100" width="56" height="70" rx="12" className="body-zone" />
-                  <rect data-zone-id="lumbar" x="106" y="170" width="44" height="60" rx="12" className="body-zone" />
-                  <circle data-zone-id="hip" cx="100" cy="230" r="22" className="body-zone" />
-                  <circle data-zone-id="hip" cx="156" cy="230" r="22" className="body-zone" />
-                  <circle data-zone-id="knee" cx="100" cy="310" r="18" className="body-zone" />
-                  <circle data-zone-id="knee" cx="156" cy="310" r="18" className="body-zone" />
-                  <circle data-zone-id="ankle" cx="100" cy="390" r="16" className="body-zone" />
-                  <circle data-zone-id="ankle" cx="156" cy="390" r="16" className="body-zone" />
-                </g>
-              )}
-            </svg>
+        <div className="relative w-full max-w-[350px] sm:max-w-[420px] md:max-w-[500px] lg:max-w-[580px] mx-auto">
+          <div className="liquid-glass rounded-3xl p-6 sm:p-10 backdrop-blur-md bg-black/20 relative">
+            
+            {/* Imagem do corpo humano */}
+            <div className="relative w-full" style={{ maxWidth: '400px', margin: '0 auto' }}>
+              <img 
+                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YW5hdG9teSUyMGJvZHl8ZW58MHx8MHx8fDA%3D"
+                alt="Corpo humano"
+                className="w-full h-auto opacity-80"
+                style={{ filter: 'brightness(1.2) contrast(0.9)' }}
+              />
+              
+              {/* SVG overlay com zonas clicáveis */}
+              <svg
+                viewBox="0 0 400 700"
+                className="absolute inset-0 w-full h-full"
+                onMouseOver={(e) => {
+                  const target = e.target as SVGElement;
+                  const zoneId = target.getAttribute('data-zone-id');
+                  if (zoneId) setHoveredZone(zoneId);
+                }}
+                onMouseOut={() => setHoveredZone(null)}
+                onClick={(e) => {
+                  const target = e.target as SVGElement;
+                  const zoneId = target.getAttribute('data-zone-id');
+                  if (zoneId) handleZoneClick(zoneId);
+                }}
+              >
+                {activeView === 'front' ? (
+                  <g className={hoveredZone ? 'zone-dimmed' : ''}>
+                    {/* Cabeça e Cervical */}
+                    <ellipse data-zone-id="head_neck" cx="200" cy="65" rx="55" ry="65" className="body-zone" />
+                    {/* Ombros */}
+                    <ellipse data-zone-id="shoulder" cx="120" cy="155" rx="38" ry="28" className="body-zone" />
+                    <ellipse data-zone-id="shoulder" cx="280" cy="155" rx="38" ry="28" className="body-zone" />
+                    {/* Peito e Tórax */}
+                    <rect data-zone-id="chest" x="155" y="140" width="90" height="80" rx="15" className="body-zone" />
+                    {/* Cotovelos */}
+                    <circle data-zone-id="elbow" cx="95" cy="270" r="22" className="body-zone" />
+                    <circle data-zone-id="elbow" cx="305" cy="270" r="22" className="body-zone" />
+                    {/* Punhos e Mãos */}
+                    <circle data-zone-id="wrist" cx="80" cy="350" r="18" className="body-zone" />
+                    <circle data-zone-id="wrist" cx="320" cy="350" r="18" className="body-zone" />
+                    {/* Coluna Torácica */}
+                    <rect data-zone-id="thoracic" x="170" y="200" width="60" height="100" rx="15" className="body-zone" />
+                    {/* Coluna Lombar */}
+                    <rect data-zone-id="lumbar" x="175" y="300" width="50" height="80" rx="15" className="body-zone" />
+                    {/* Quadril */}
+                    <circle data-zone-id="hip" cx="155" cy="420" r="35" className="body-zone" />
+                    <circle data-zone-id="hip" cx="245" cy="420" r="35" className="body-zone" />
+                    {/* Joelhos */}
+                    <circle data-zone-id="knee" cx="160" cy="530" r="28" className="body-zone" />
+                    <circle data-zone-id="knee" cx="240" cy="530" r="28" className="body-zone" />
+                    {/* Tornozelos e Pés */}
+                    <circle data-zone-id="ankle" cx="155" cy="640" r="25" className="body-zone" />
+                    <circle data-zone-id="ankle" cx="245" cy="640" r="25" className="body-zone" />
+                  </g>
+                ) : (
+                  <g className={hoveredZone ? 'zone-dimmed' : ''}>
+                    {/* Cabeça e Cervical */}
+                    <ellipse data-zone-id="head_neck" cx="200" cy="65" rx="55" ry="65" className="body-zone" />
+                    {/* Ombros */}
+                    <ellipse data-zone-id="shoulder" cx="120" cy="155" rx="38" ry="28" className="body-zone" />
+                    <ellipse data-zone-id="shoulder" cx="280" cy="155" rx="38" ry="28" className="body-zone" />
+                    {/* Coluna Torácica */}
+                    <rect data-zone-id="thoracic" x="170" y="200" width="60" height="100" rx="15" className="body-zone" />
+                    {/* Cotovelos */}
+                    <circle data-zone-id="elbow" cx="95" cy="270" r="22" className="body-zone" />
+                    <circle data-zone-id="elbow" cx="305" cy="270" r="22" className="body-zone" />
+                    {/* Coluna Lombar */}
+                    <rect data-zone-id="lumbar" x="175" y="300" width="50" height="80" rx="15" className="body-zone" />
+                    {/* Quadril */}
+                    <circle data-zone-id="hip" cx="155" cy="420" r="35" className="body-zone" />
+                    <circle data-zone-id="hip" cx="245" cy="420" r="35" className="body-zone" />
+                    {/* Joelhos */}
+                    <circle data-zone-id="knee" cx="160" cy="530" r="28" className="body-zone" />
+                    <circle data-zone-id="knee" cx="240" cy="530" r="28" className="body-zone" />
+                    {/* Tornozelos e Pés */}
+                    <circle data-zone-id="ankle" cx="155" cy="640" r="25" className="body-zone" />
+                    <circle data-zone-id="ankle" cx="245" cy="640" r="25" className="body-zone" />
+                  </g>
+                )}
+              </svg>
+            </div>
+            
             {hoveredZone && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 liquid-glass rounded-full px-4 py-1.5 text-sm font-medium text-teal-300 shadow-lg pointer-events-none">
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 liquid-glass rounded-full px-4 py-1.5 text-sm font-medium text-teal-300 shadow-lg pointer-events-none z-10">
                 {ZONES.find(z => z.id === hoveredZone)?.title}
               </div>
             )}
