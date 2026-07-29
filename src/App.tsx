@@ -21,6 +21,8 @@ import {
   Award,
   ArrowRight,
   Sparkles,
+  ClipboardList,
+  Send,
 } from 'lucide-react';
 
 // --- CONFIGURÁVEL: Troque aqui os dados reais ---
@@ -31,9 +33,8 @@ const INSTAGRAM_URL = 'https://instagram.com';
 const FACEBOOK_URL = 'https://facebook.com';
 const YOUTUBE_URL = 'https://youtube.com';
 
-// URLs das imagens do corpo
-const BODY_FRONT_IMAGE = '/assets/defrente.png';
-const BODY_BACK_IMAGE = '/assets/decosta.png';
+const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
+const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
 
 const ZONE_VIDEOS: Record<string, string> = {
   'Cabeça e Cervical': '',
@@ -91,6 +92,7 @@ function App() {
   const [activeView, setActiveView] = useState<'front' | 'back'>('front');
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
+  const [showFormModal, setShowFormModal] = useState(false);
   const [nome, setNome] = useState('');
   const [idade, setIdade] = useState('');
   const [sintoma, setSintoma] = useState('');
@@ -105,16 +107,19 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedZone(null);
+      if (e.key === 'Escape') {
+        setSelectedZone(null);
+        setShowFormModal(false);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    document.body.style.overflow = menuOpen || showFormModal ? 'hidden' : '';
     return () => { document.body.style.overflow = '' };
-  }, [menuOpen]);
+  }, [menuOpen, showFormModal]);
 
   useEffect(() => {
     if (selectedZone && drawerContentRef.current) {
@@ -137,6 +142,7 @@ function App() {
     const message = `Olá! Meu nome é ${nome}, tenho ${idade} anos.\nEstou sentindo: ${sintoma}\nÁrea de interesse: ${zoneTitle}`;
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
+    setShowFormModal(false);
   };
 
   const resetForm = () => {
@@ -149,6 +155,11 @@ function App() {
   const handleZoneClick = (zoneId: string) => {
     resetForm();
     setSelectedZone(zoneId);
+  };
+
+  const openFormModal = () => {
+    resetForm();
+    setShowFormModal(true);
   };
 
   return (
@@ -220,6 +231,10 @@ function App() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes modalIn {
+          from { opacity: 0; transform: scale(0.95) translateY(20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
         .animate-fade-in-up {
           animation: fadeInUp 0.6s ease-out forwards;
         }
@@ -230,6 +245,9 @@ function App() {
         .animate-fade-in-up-delay-2 {
           animation: fadeInUp 0.6s ease-out 0.4s forwards;
           opacity: 0;
+        }
+        .animate-modal-in {
+          animation: modalIn 0.3s ease-out forwards;
         }
       `}</style>
 
@@ -394,11 +412,9 @@ function App() {
           </button>
         </div>
 
-        {/* Container do corpo AJUSTADO - menor e centralizado */}
         <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[400px] mx-auto">
           <div className="liquid-glass rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-md bg-black/20 relative">
             
-            {/* Imagem do corpo humano - menor */}
             <div className="relative w-full max-w-[260px] sm:max-w-[280px] md:max-w-[300px] mx-auto">
               <img 
                 src={activeView === 'front' ? BODY_FRONT_IMAGE : BODY_BACK_IMAGE}
@@ -407,7 +423,6 @@ function App() {
                 style={{ filter: 'brightness(1.1) contrast(0.95)' }}
               />
               
-              {/* SVG overlay com zonas clicáveis */}
               <svg
                 viewBox="0 0 400 700"
                 className="absolute inset-0 w-full h-full"
@@ -425,22 +440,32 @@ function App() {
               >
                 {activeView === 'front' ? (
                   <g className={hoveredZone ? 'zone-dimmed' : ''}>
+                    {/* Cabeça e Cervical */}
                     <ellipse data-zone-id="head_neck" cx="200" cy="65" rx="55" ry="65" className="body-zone" />
+                    {/* Ombros */}
                     <ellipse data-zone-id="shoulder" cx="120" cy="155" rx="38" ry="28" className="body-zone" />
                     <ellipse data-zone-id="shoulder" cx="280" cy="155" rx="38" ry="28" className="body-zone" />
+                    {/* Peito e Tórax */}
                     <rect data-zone-id="chest" x="155" y="140" width="90" height="80" rx="15" className="body-zone" />
-                    <circle data-zone-id="elbow" cx="95" cy="270" r="22" className="body-zone" />
-                    <circle data-zone-id="elbow" cx="305" cy="270" r="22" className="body-zone" />
-                    <circle data-zone-id="wrist" cx="80" cy="350" r="18" className="body-zone" />
-                    <circle data-zone-id="wrist" cx="320" cy="350" r="18" className="body-zone" />
+                    {/* Cotovelos - SUBIU */}
+                    <circle data-zone-id="elbow" cx="95" cy="250" r="22" className="body-zone" />
+                    <circle data-zone-id="elbow" cx="305" cy="250" r="22" className="body-zone" />
+                    {/* Punhos e Mãos - SUBIU */}
+                    <circle data-zone-id="wrist" cx="80" cy="320" r="18" className="body-zone" />
+                    <circle data-zone-id="wrist" cx="320" cy="320" r="18" className="body-zone" />
+                    {/* Coluna Torácica */}
                     <rect data-zone-id="thoracic" x="170" y="200" width="60" height="100" rx="15" className="body-zone" />
+                    {/* Coluna Lombar */}
                     <rect data-zone-id="lumbar" x="175" y="300" width="50" height="80" rx="15" className="body-zone" />
-                    <circle data-zone-id="hip" cx="155" cy="420" r="35" className="body-zone" />
-                    <circle data-zone-id="hip" cx="245" cy="420" r="35" className="body-zone" />
-                    <circle data-zone-id="knee" cx="160" cy="530" r="28" className="body-zone" />
-                    <circle data-zone-id="knee" cx="240" cy="530" r="28" className="body-zone" />
-                    <circle data-zone-id="ankle" cx="155" cy="640" r="25" className="body-zone" />
-                    <circle data-zone-id="ankle" cx="245" cy="640" r="25" className="body-zone" />
+                    {/* Quadril - SUBIU */}
+                    <circle data-zone-id="hip" cx="155" cy="395" r="35" className="body-zone" />
+                    <circle data-zone-id="hip" cx="245" cy="395" r="35" className="body-zone" />
+                    {/* Joelhos - SUBIU */}
+                    <circle data-zone-id="knee" cx="160" cy="495" r="28" className="body-zone" />
+                    <circle data-zone-id="knee" cx="240" cy="495" r="28" className="body-zone" />
+                    {/* Tornozelos e Pés - SUBIU */}
+                    <circle data-zone-id="ankle" cx="155" cy="595" r="25" className="body-zone" />
+                    <circle data-zone-id="ankle" cx="245" cy="595" r="25" className="body-zone" />
                   </g>
                 ) : (
                   <g className={hoveredZone ? 'zone-dimmed' : ''}>
@@ -448,15 +473,15 @@ function App() {
                     <ellipse data-zone-id="shoulder" cx="120" cy="155" rx="38" ry="28" className="body-zone" />
                     <ellipse data-zone-id="shoulder" cx="280" cy="155" rx="38" ry="28" className="body-zone" />
                     <rect data-zone-id="thoracic" x="170" y="200" width="60" height="100" rx="15" className="body-zone" />
-                    <circle data-zone-id="elbow" cx="95" cy="270" r="22" className="body-zone" />
-                    <circle data-zone-id="elbow" cx="305" cy="270" r="22" className="body-zone" />
+                    <circle data-zone-id="elbow" cx="95" cy="250" r="22" className="body-zone" />
+                    <circle data-zone-id="elbow" cx="305" cy="250" r="22" className="body-zone" />
                     <rect data-zone-id="lumbar" x="175" y="300" width="50" height="80" rx="15" className="body-zone" />
-                    <circle data-zone-id="hip" cx="155" cy="420" r="35" className="body-zone" />
-                    <circle data-zone-id="hip" cx="245" cy="420" r="35" className="body-zone" />
-                    <circle data-zone-id="knee" cx="160" cy="530" r="28" className="body-zone" />
-                    <circle data-zone-id="knee" cx="240" cy="530" r="28" className="body-zone" />
-                    <circle data-zone-id="ankle" cx="155" cy="640" r="25" className="body-zone" />
-                    <circle data-zone-id="ankle" cx="245" cy="640" r="25" className="body-zone" />
+                    <circle data-zone-id="hip" cx="155" cy="395" r="35" className="body-zone" />
+                    <circle data-zone-id="hip" cx="245" cy="395" r="35" className="body-zone" />
+                    <circle data-zone-id="knee" cx="160" cy="495" r="28" className="body-zone" />
+                    <circle data-zone-id="knee" cx="240" cy="495" r="28" className="body-zone" />
+                    <circle data-zone-id="ankle" cx="155" cy="595" r="25" className="body-zone" />
+                    <circle data-zone-id="ankle" cx="245" cy="595" r="25" className="body-zone" />
                   </g>
                 )}
               </svg>
@@ -551,14 +576,14 @@ function App() {
         </div>
       </footer>
 
-      {/* Drawer Panel */}
+      {/* Drawer Panel - Informações da zona */}
       <div
         className={`fixed inset-y-0 right-0 z-30 w-full max-w-md transition-transform duration-500 ease-out transform ${
-          selectedZone ? 'translate-x-0' : 'translate-x-full'
+          selectedZone && !showFormModal ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div
-          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${selectedZone ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={() => setSelectedZone(null)}
         />
         <div 
@@ -609,46 +634,105 @@ function App() {
                 )}
               </div>
 
-              <div className="space-y-4" id="triage-form">
-                <h4 className="text-lg font-medium text-white">Pré-avaliação rápida</h4>
-                <input
-                  type="text"
-                  placeholder="Nome"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/50 transition-colors"
-                />
-                <input
-                  type="number"
-                  placeholder="Idade"
-                  value={idade}
-                  onChange={(e) => setIdade(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/50 transition-colors"
-                />
-                <textarea
-                  placeholder="Descreva brevemente sua dor ou desconforto"
-                  value={sintoma}
-                  onChange={(e) => setSintoma(e.target.value)}
-                  rows={3}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/50 transition-colors resize-none"
-                />
-                {formError && (
-                  <p className="text-red-400 text-sm font-light">{formError}</p>
-                )}
-                <button
-                  onClick={handleWhatsApp}
-                  className="liquid-glass w-full rounded-full py-3.5 text-white font-medium flex items-center justify-center gap-2 hover:bg-white/5 transition-all"
-                >
-                  <MessageCircle className="h-5 w-5" /> Conversar com Especialista Ortopédico
-                </button>
-                <p className="text-center text-white/30 text-xs mt-2">
-                  Suas informações estão seguras e serão usadas apenas para sua avaliação
-                </p>
-              </div>
+              {/* Botão para abrir formulário no modal */}
+              <button
+                onClick={() => {
+                  resetForm();
+                  setShowFormModal(true);
+                }}
+                className="liquid-glass w-full rounded-full py-3.5 text-white font-medium flex items-center justify-center gap-2 hover:bg-white/5 transition-all"
+              >
+                <ClipboardList className="h-5 w-5" /> Quero uma pré-avaliação
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* Modal de Formulário - Aparece no centro da tela */}
+      {showFormModal && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
+          {/* Overlay */}
+          <div 
+            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            onClick={() => setShowFormModal(false)}
+          />
+          
+          {/* Modal Content */}
+          <div className="relative w-full max-w-md liquid-glass rounded-2xl p-6 sm:p-8 bg-black/60 backdrop-blur-xl animate-modal-in max-h-[90vh] overflow-y-auto drawer-scroll">
+            <button
+              onClick={() => setShowFormModal(false)}
+              className="absolute top-4 right-4 liquid-glass h-8 w-8 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            <div className="space-y-6">
+              <div className="text-center">
+                <ClipboardList className="h-10 w-10 text-teal-400 mx-auto mb-3" />
+                <h3 className="text-xl font-medium text-white">Pré-avaliação Rápida</h3>
+                {currentZoneData && (
+                  <p className="text-teal-400/80 text-sm mt-1">
+                    Área selecionada: {currentZoneData.title}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Nome</label>
+                  <input
+                    type="text"
+                    placeholder="Seu nome completo"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/50 transition-colors"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Idade</label>
+                  <input
+                    type="number"
+                    placeholder="Sua idade"
+                    value={idade}
+                    onChange={(e) => setIdade(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/50 transition-colors"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">O que você está sentindo?</label>
+                  <textarea
+                    placeholder="Descreva brevemente sua dor ou desconforto"
+                    value={sintoma}
+                    onChange={(e) => setSintoma(e.target.value)}
+                    rows={4}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/50 transition-colors resize-none"
+                  />
+                </div>
+
+                {formError && (
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                    <p className="text-red-400 text-sm">{formError}</p>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleWhatsApp}
+                  className="liquid-glass w-full rounded-full py-3.5 text-white font-medium flex items-center justify-center gap-2 hover:bg-white/5 transition-all bg-teal-500/10"
+                >
+                  <Send className="h-5 w-5" /> Enviar para Especialista
+                </button>
+
+                <p className="text-center text-white/30 text-xs">
+                  Suas informações estão seguras e serão enviadas via WhatsApp
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
