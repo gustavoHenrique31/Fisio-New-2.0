@@ -15,15 +15,21 @@ import {
   Dumbbell,
   Wind,
   UserCheck,
+  Star,
+  Shield,
+  Clock,
+  Award,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 
 // --- CONFIGURÁVEL: Troque aqui os dados reais ---
-const WHATSAPP_NUMBER = '5511999999999'; // Número do especialista
-const CLINIC_ADDRESS = 'Rua Exemplo, 123 - Bairro - Cidade/UF'; // Endereço real
-const CLINIC_PHONE = '(11) 99999-9999'; // Telefone real
-const INSTAGRAM_URL = 'https://instagram.com'; // Instagram real
-const FACEBOOK_URL = 'https://facebook.com'; // Facebook real
-const YOUTUBE_URL = 'https://youtube.com'; // YouTube real
+const WHATSAPP_NUMBER = '5511999999999';
+const CLINIC_ADDRESS = 'Rua Exemplo, 123 - Bairro - Cidade/UF';
+const CLINIC_PHONE = '(11) 99999-9999';
+const INSTAGRAM_URL = 'https://instagram.com';
+const FACEBOOK_URL = 'https://facebook.com';
+const YOUTUBE_URL = 'https://youtube.com';
 
 const ZONE_VIDEOS: Record<string, string> = {
   'Cabeça e Cervical': '',
@@ -37,6 +43,10 @@ const ZONE_VIDEOS: Record<string, string> = {
   Joelho: '',
   'Tornozelo e Pé': '',
 };
+
+// URLs das imagens do corpo
+const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
+const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
 // --- FIM DAS CONFIGURAÇÕES ---
 
 interface ZoneData {
@@ -69,6 +79,13 @@ const SPECIALIZATIONS = [
   { icon: HeartPulse, title: 'Fisioterapia Geriátrica', desc: 'Mobilidade e qualidade de vida musculoesquelética.' },
 ];
 
+const HERO_BENEFITS = [
+  { icon: Star, text: 'Especialistas certificados' },
+  { icon: Shield, text: 'Técnicas avançadas' },
+  { icon: Clock, text: 'Atendimento ágil' },
+  { icon: Award, text: '+10 anos de excelência' },
+];
+
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeView, setActiveView] = useState<'front' | 'back'>('front');
@@ -82,6 +99,7 @@ function App() {
   const mapSectionRef = useRef<HTMLDivElement>(null);
   const specSectionRef = useRef<HTMLDivElement>(null);
   const aboutSectionRef = useRef<HTMLDivElement>(null);
+  const drawerContentRef = useRef<HTMLDivElement>(null);
 
   const currentZoneData = ZONES.find(z => z.id === selectedZone);
 
@@ -97,6 +115,13 @@ function App() {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = '' };
   }, [menuOpen]);
+
+  // Scroll to top of drawer content when zone changes
+  useEffect(() => {
+    if (selectedZone && drawerContentRef.current) {
+      drawerContentRef.current.scrollTop = 0;
+    }
+  }, [selectedZone]);
 
   const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
@@ -179,9 +204,34 @@ function App() {
           opacity: 1;
           stroke: rgba(94, 234, 212, 0.9);
         }
-        .drawer-scroll::-webkit-scrollbar { width: 4px; }
-        .drawer-scroll::-webkit-scrollbar-track { background: transparent; }
-        .drawer-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        .drawer-scroll::-webkit-scrollbar { 
+          width: 6px; 
+        }
+        .drawer-scroll::-webkit-scrollbar-track { 
+          background: rgba(255,255,255,0.05); 
+        }
+        .drawer-scroll::-webkit-scrollbar-thumb { 
+          background: rgba(94, 234, 212, 0.3); 
+          border-radius: 4px; 
+        }
+        .drawer-scroll::-webkit-scrollbar-thumb:hover { 
+          background: rgba(94, 234, 212, 0.5); 
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .animate-fade-in-up-delay {
+          animation: fadeInUp 0.6s ease-out 0.2s forwards;
+          opacity: 0;
+        }
+        .animate-fade-in-up-delay-2 {
+          animation: fadeInUp 0.6s ease-out 0.4s forwards;
+          opacity: 0;
+        }
       `}</style>
 
       {/* Background Video */}
@@ -252,34 +302,76 @@ function App() {
           </div>
         </nav>
 
-        <div className={`flex-1 flex flex-col justify-center px-5 sm:px-8 md:px-16 lg:px-20 transition-opacity duration-500 ${menuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <div className="max-w-2xl mt-14 sm:mt-20 md:mt-28">
-            <div className="liquid-glass rounded-full inline-flex items-center gap-2.5 sm:gap-3 px-3 py-1.5 sm:px-4 sm:py-2 mb-5 sm:mb-6">
-              <div className="flex -space-x-2">
-                {['774909', '1222271', '1239291', '697509'].map((id, i) => (
-                  <img
-                    key={i}
-                    src={`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=100`}
-                    alt=""
-                    className="h-5 w-5 sm:h-6 sm:w-6 rounded-full border-2 border-white/20 object-cover"
-                  />
-                ))}
-              </div>
-              <span className="text-xs sm:text-sm font-light text-white/80">sua jornada para o bem-estar</span>
-            </div>
+        <div className={`flex-1 flex items-center px-5 sm:px-8 md:px-16 lg:px-20 transition-opacity duration-500 ${menuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <div className="w-full max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+              
+              {/* Coluna da esquerda - Texto */}
+              <div>
+                <div className="animate-fade-in-up">
+                  <div className="liquid-glass rounded-full inline-flex items-center gap-2.5 sm:gap-3 px-3 py-1.5 sm:px-4 sm:py-2 mb-5 sm:mb-6">
+                    <div className="flex -space-x-2">
+                      {['774909', '1222271', '1239291', '697509'].map((id, i) => (
+                        <img
+                          key={i}
+                          src={`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=100`}
+                          alt=""
+                          className="h-5 w-5 sm:h-6 sm:w-6 rounded-full border-2 border-white/20 object-cover"
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs sm:text-sm font-light text-white/80">sua jornada para o bem-estar</span>
+                  </div>
+                </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-normal leading-[1.05] text-white tracking-[-0.05em] mb-6 sm:mb-8">
-              Recupere seu<br />movimento natural
-            </h1>
-            <p className="text-lg sm:text-xl text-white/70 font-light max-w-xl mb-8 sm:mb-10">
-              Especialistas em fisioterapia ortopédica e esportiva. Descubra o que está causando sua dor e inicie seu caminho de recuperação hoje.
-            </p>
-            <button
-              onClick={() => scrollToSection(mapSectionRef)}
-              className="liquid-glass rounded-full px-8 py-3.5 text-white font-medium inline-flex items-center gap-2 hover:bg-white/5 transition-all text-lg"
-            >
-              Explorar Mapa Corporal <ChevronRight className="h-5 w-5" />
-            </button>
+                <h1 className="animate-fade-in-up text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-normal leading-[1.05] text-white tracking-[-0.05em] mb-6 sm:mb-8">
+                  Recupere seu<br />movimento natural
+                </h1>
+                
+                <p className="animate-fade-in-up-delay text-lg sm:text-xl text-white/70 font-light max-w-xl mb-8">
+                  Especialistas em fisioterapia ortopédica e esportiva. Descubra o que está causando sua dor e inicie seu caminho de recuperação hoje.
+                </p>
+
+                <div className="animate-fade-in-up-delay-2 flex flex-col sm:flex-row gap-4 mb-10">
+                  <button
+                    onClick={() => scrollToSection(mapSectionRef)}
+                    className="liquid-glass rounded-full px-8 py-3.5 text-white font-medium inline-flex items-center justify-center gap-2 hover:bg-white/5 transition-all text-lg group"
+                  >
+                    Explorar Mapa Corporal 
+                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <button
+                    onClick={() => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Gostaria de agendar uma avaliação.`, '_blank')}
+                    className="rounded-full px-8 py-3.5 bg-teal-500/20 border border-teal-400/30 text-teal-300 font-medium inline-flex items-center justify-center gap-2 hover:bg-teal-500/30 transition-all text-lg backdrop-blur-sm"
+                  >
+                    Agende sua Avaliação <ArrowRight className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Coluna da direita - Cards de benefícios */}
+              <div className="animate-fade-in-up-delay-2 grid grid-cols-2 gap-4">
+                {HERO_BENEFITS.map((benefit, idx) => {
+                  const Icon = benefit.icon;
+                  return (
+                    <div key={idx} className="liquid-glass rounded-2xl p-6 backdrop-blur-md text-center hover:bg-white/[0.02] transition-all group cursor-default">
+                      <Icon className="h-8 w-8 text-teal-400 mx-auto mb-3 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+                      <p className="text-white/80 text-sm font-medium">{benefit.text}</p>
+                    </div>
+                  );
+                })}
+                
+                {/* Card extra de estatística */}
+                <div className="liquid-glass rounded-2xl p-6 backdrop-blur-md text-center col-span-2 bg-teal-500/5">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Sparkles className="h-5 w-5 text-teal-400" />
+                    <span className="text-teal-400 text-lg font-semibold">98%</span>
+                    <Sparkles className="h-5 w-5 text-teal-400" />
+                  </div>
+                  <p className="text-white/70 text-sm">dos pacientes recomendam nossa clínica</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -312,10 +404,10 @@ function App() {
             {/* Imagem do corpo humano */}
             <div className="relative w-full" style={{ maxWidth: '400px', margin: '0 auto' }}>
               <img 
-                src="https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg"
-                alt="Corpo humano"
-                className="w-full h-auto opacity-80"
-                style={{ filter: 'brightness(1.2) contrast(0.9)' }}
+                src={activeView === 'front' ? BODY_FRONT_IMAGE : BODY_BACK_IMAGE}
+                alt={activeView === 'front' ? 'Corpo humano frente' : 'Corpo humano costas'}
+                className="w-full h-auto opacity-85"
+                style={{ filter: 'brightness(1.1) contrast(0.95)' }}
               />
               
               {/* SVG overlay com zonas clicáveis */}
@@ -336,54 +428,36 @@ function App() {
               >
                 {activeView === 'front' ? (
                   <g className={hoveredZone ? 'zone-dimmed' : ''}>
-                    {/* Cabeça e Cervical */}
                     <ellipse data-zone-id="head_neck" cx="200" cy="65" rx="55" ry="65" className="body-zone" />
-                    {/* Ombros */}
                     <ellipse data-zone-id="shoulder" cx="120" cy="155" rx="38" ry="28" className="body-zone" />
                     <ellipse data-zone-id="shoulder" cx="280" cy="155" rx="38" ry="28" className="body-zone" />
-                    {/* Peito e Tórax */}
                     <rect data-zone-id="chest" x="155" y="140" width="90" height="80" rx="15" className="body-zone" />
-                    {/* Cotovelos */}
                     <circle data-zone-id="elbow" cx="95" cy="270" r="22" className="body-zone" />
                     <circle data-zone-id="elbow" cx="305" cy="270" r="22" className="body-zone" />
-                    {/* Punhos e Mãos */}
                     <circle data-zone-id="wrist" cx="80" cy="350" r="18" className="body-zone" />
                     <circle data-zone-id="wrist" cx="320" cy="350" r="18" className="body-zone" />
-                    {/* Coluna Torácica */}
                     <rect data-zone-id="thoracic" x="170" y="200" width="60" height="100" rx="15" className="body-zone" />
-                    {/* Coluna Lombar */}
                     <rect data-zone-id="lumbar" x="175" y="300" width="50" height="80" rx="15" className="body-zone" />
-                    {/* Quadril */}
                     <circle data-zone-id="hip" cx="155" cy="420" r="35" className="body-zone" />
                     <circle data-zone-id="hip" cx="245" cy="420" r="35" className="body-zone" />
-                    {/* Joelhos */}
                     <circle data-zone-id="knee" cx="160" cy="530" r="28" className="body-zone" />
                     <circle data-zone-id="knee" cx="240" cy="530" r="28" className="body-zone" />
-                    {/* Tornozelos e Pés */}
                     <circle data-zone-id="ankle" cx="155" cy="640" r="25" className="body-zone" />
                     <circle data-zone-id="ankle" cx="245" cy="640" r="25" className="body-zone" />
                   </g>
                 ) : (
                   <g className={hoveredZone ? 'zone-dimmed' : ''}>
-                    {/* Cabeça e Cervical */}
                     <ellipse data-zone-id="head_neck" cx="200" cy="65" rx="55" ry="65" className="body-zone" />
-                    {/* Ombros */}
                     <ellipse data-zone-id="shoulder" cx="120" cy="155" rx="38" ry="28" className="body-zone" />
                     <ellipse data-zone-id="shoulder" cx="280" cy="155" rx="38" ry="28" className="body-zone" />
-                    {/* Coluna Torácica */}
                     <rect data-zone-id="thoracic" x="170" y="200" width="60" height="100" rx="15" className="body-zone" />
-                    {/* Cotovelos */}
                     <circle data-zone-id="elbow" cx="95" cy="270" r="22" className="body-zone" />
                     <circle data-zone-id="elbow" cx="305" cy="270" r="22" className="body-zone" />
-                    {/* Coluna Lombar */}
                     <rect data-zone-id="lumbar" x="175" y="300" width="50" height="80" rx="15" className="body-zone" />
-                    {/* Quadril */}
                     <circle data-zone-id="hip" cx="155" cy="420" r="35" className="body-zone" />
                     <circle data-zone-id="hip" cx="245" cy="420" r="35" className="body-zone" />
-                    {/* Joelhos */}
                     <circle data-zone-id="knee" cx="160" cy="530" r="28" className="body-zone" />
                     <circle data-zone-id="knee" cx="240" cy="530" r="28" className="body-zone" />
-                    {/* Tornozelos e Pés */}
                     <circle data-zone-id="ankle" cx="155" cy="640" r="25" className="body-zone" />
                     <circle data-zone-id="ankle" cx="245" cy="640" r="25" className="body-zone" />
                   </g>
@@ -490,16 +564,19 @@ function App() {
           className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${selectedZone ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setSelectedZone(null)}
         />
-        <div className="relative ml-auto w-full max-w-md h-full liquid-glass border-l border-white/10 bg-black/40 backdrop-blur-xl overflow-y-auto drawer-scroll p-6 sm:p-8">
+        <div 
+          ref={drawerContentRef}
+          className="relative ml-auto w-full max-w-md h-full liquid-glass border-l border-white/10 bg-black/40 backdrop-blur-xl overflow-y-auto drawer-scroll p-6 sm:p-8"
+        >
           <button
             onClick={() => setSelectedZone(null)}
-            className="absolute top-4 right-4 liquid-glass h-8 w-8 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
+            className="sticky top-4 float-right liquid-glass h-8 w-8 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors z-10"
           >
             <X className="h-4 w-4" />
           </button>
 
           {currentZoneData && (
-            <div className="mt-10 space-y-6">
+            <div className="mt-10 space-y-6 pb-8">
               <h3 className="text-2xl font-medium text-white">{currentZoneData.title}</h3>
               
               <div className="space-y-4">
@@ -535,7 +612,7 @@ function App() {
                 )}
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4" id="triage-form">
                 <h4 className="text-lg font-medium text-white">Pré-avaliação rápida</h4>
                 <input
                   type="text"
@@ -567,6 +644,9 @@ function App() {
                 >
                   <MessageCircle className="h-5 w-5" /> Conversar com Especialista Ortopédico
                 </button>
+                <p className="text-center text-white/30 text-xs mt-2">
+                  Suas informações estão seguras e serão usadas apenas para sua avaliação
+                </p>
               </div>
             </div>
           )}
