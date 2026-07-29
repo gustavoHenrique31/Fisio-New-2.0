@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Menu,
   X,
-  CircleUserRound,
   MessageCircle,
   ChevronRight,
   MapPin,
@@ -18,15 +17,14 @@ import {
   UserCheck,
 } from 'lucide-react';
 
-// --- CONFIGURABLE CONSTANTS (Placeholders) ---
-const WHATSAPP_NUMBER = '5511999999999'; // TODO: Replace with the actual specialist number
-const CLINIC_ADDRESS = 'Rua Exemplo, 123 - Bairro - Cidade/UF'; // TODO: Replace with real address
-const CLINIC_PHONE = '(11) 99999-9999'; // TODO: Replace with real phone
-const INSTAGRAM_URL = 'https://instagram.com'; // TODO: Replace
-const FACEBOOK_URL = 'https://facebook.com'; // TODO: Replace
-const YOUTUBE_URL = 'https://youtube.com'; // TODO: Replace
+// --- CONFIGURÁVEL: Troque aqui os dados reais ---
+const WHATSAPP_NUMBER = '5511999999999'; // Número do especialista
+const CLINIC_ADDRESS = 'Rua Exemplo, 123 - Bairro - Cidade/UF'; // Endereço real
+const CLINIC_PHONE = '(11) 99999-9999'; // Telefone real
+const INSTAGRAM_URL = 'https://instagram.com'; // Instagram real
+const FACEBOOK_URL = 'https://facebook.com'; // Facebook real
+const YOUTUBE_URL = 'https://youtube.com'; // YouTube real
 
-// TODO: Replace these video URLs with real exercise/treatment demonstration videos for each zone
 const ZONE_VIDEOS: Record<string, string> = {
   'Cabeça e Cervical': '',
   Ombro: '',
@@ -39,9 +37,8 @@ const ZONE_VIDEOS: Record<string, string> = {
   Joelho: '',
   'Tornozelo e Pé': '',
 };
-// --- END CONFIGURABLE CONSTANTS ---
+// --- FIM DAS CONFIGURAÇÕES ---
 
-// --- DATA ---
 interface ZoneData {
   id: string;
   title: string;
@@ -71,15 +68,12 @@ const SPECIALIZATIONS = [
   { icon: UserCheck, title: 'RPG (Reeducação Postural)', desc: 'Correção postural e alívio de dores crônicas.' },
   { icon: HeartPulse, title: 'Fisioterapia Geriátrica', desc: 'Mobilidade e qualidade de vida musculoesquelética.' },
 ];
-// --- END DATA ---
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeView, setActiveView] = useState<'front' | 'back'>('front');
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
-  
-  // Form state
   const [nome, setNome] = useState('');
   const [idade, setIdade] = useState('');
   const [sintoma, setSintoma] = useState('');
@@ -91,7 +85,6 @@ function App() {
 
   const currentZoneData = ZONES.find(z => z.id === selectedZone);
 
-  // Close drawer with Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setSelectedZone(null);
@@ -100,7 +93,6 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Lock body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = '' };
@@ -135,107 +127,8 @@ function App() {
     setSelectedZone(zoneId);
   };
 
-  // SVG Body Map paths with inline event handlers
-  const renderBodyMap = () => {
-    const zoneElements = activeView === 'front' ? (
-      <g>
-        {/* Head/Neck */}
-        <circle 
-          data-zone-id="head_neck" 
-          cx="128" cy="52" r="32" 
-          className="body-zone"
-        />
-        {/* Shoulders */}
-        <ellipse data-zone-id="shoulder" cx="80" cy="100" rx="22" ry="18" className="body-zone" />
-        <ellipse data-zone-id="shoulder" cx="176" cy="100" rx="22" ry="18" className="body-zone" />
-        {/* Elbows */}
-        <circle data-zone-id="elbow" cx="70" cy="170" r="15" className="body-zone" />
-        <circle data-zone-id="elbow" cx="186" cy="170" r="15" className="body-zone" />
-        {/* Wrists */}
-        <circle data-zone-id="wrist" cx="62" cy="240" r="13" className="body-zone" />
-        <circle data-zone-id="wrist" cx="194" cy="240" r="13" className="body-zone" />
-        {/* Thoracic */}
-        <rect data-zone-id="thoracic" x="100" y="100" width="56" height="70" rx="12" className="body-zone" />
-        {/* Chest */}
-        <rect data-zone-id="chest" x="100" y="100" width="56" height="50" rx="12" className="body-zone" />
-        {/* Lumbar */}
-        <rect data-zone-id="lumbar" x="106" y="170" width="44" height="60" rx="12" className="body-zone" />
-        {/* Hips */}
-        <circle data-zone-id="hip" cx="100" cy="230" r="22" className="body-zone" />
-        <circle data-zone-id="hip" cx="156" cy="230" r="22" className="body-zone" />
-        {/* Knees */}
-        <circle data-zone-id="knee" cx="100" cy="310" r="18" className="body-zone" />
-        <circle data-zone-id="knee" cx="156" cy="310" r="18" className="body-zone" />
-        {/* Ankles */}
-        <circle data-zone-id="ankle" cx="100" cy="390" r="16" className="body-zone" />
-        <circle data-zone-id="ankle" cx="156" cy="390" r="16" className="body-zone" />
-      </g>
-    ) : (
-      <g>
-        {/* Head/Neck */}
-        <circle data-zone-id="head_neck" cx="128" cy="52" r="32" className="body-zone" />
-        {/* Shoulders */}
-        <ellipse data-zone-id="shoulder" cx="80" cy="100" rx="22" ry="18" className="body-zone" />
-        <ellipse data-zone-id="shoulder" cx="176" cy="100" rx="22" ry="18" className="body-zone" />
-        {/* Elbows */}
-        <circle data-zone-id="elbow" cx="70" cy="170" r="15" className="body-zone" />
-        <circle data-zone-id="elbow" cx="186" cy="170" r="15" className="body-zone" />
-        {/* Thoracic */}
-        <rect data-zone-id="thoracic" x="100" y="100" width="56" height="70" rx="12" className="body-zone" />
-        {/* Lumbar */}
-        <rect data-zone-id="lumbar" x="106" y="170" width="44" height="60" rx="12" className="body-zone" />
-        {/* Hips */}
-        <circle data-zone-id="hip" cx="100" cy="230" r="22" className="body-zone" />
-        <circle data-zone-id="hip" cx="156" cy="230" r="22" className="body-zone" />
-        {/* Knees */}
-        <circle data-zone-id="knee" cx="100" cy="310" r="18" className="body-zone" />
-        <circle data-zone-id="knee" cx="156" cy="310" r="18" className="body-zone" />
-        {/* Ankles */}
-        <circle data-zone-id="ankle" cx="100" cy="390" r="16" className="body-zone" />
-        <circle data-zone-id="ankle" cx="156" cy="390" r="16" className="body-zone" />
-      </g>
-    );
-
-    return (
-      <svg
-        viewBox="0 0 256 440"
-        className={`w-full h-auto transition-all duration-300 ${hoveredZone ? 'zone-dimmed' : ''}`}
-        onMouseOver={(e) => {
-          const target = e.target as SVGElement;
-          const zoneId = target.getAttribute('data-zone-id');
-          if (zoneId) setHoveredZone(zoneId);
-        }}
-        onMouseOut={() => setHoveredZone(null)}
-        onClick={(e) => {
-          const target = e.target as SVGElement;
-          const zoneId = target.getAttribute('data-zone-id');
-          if (zoneId) handleZoneClick(zoneId);
-        }}
-      >
-        {/* Simple body outline for context */}
-        <g fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5">
-          {/* Head */}
-          <circle cx="128" cy="52" r="32" />
-          {/* Neck */}
-          <line x1="128" y1="84" x2="128" y2="100" />
-          {/* Body */}
-          <rect x="88" y="100" width="80" height="130" rx="20" />
-          {/* Arms */}
-          <path d="M88 110 L40 180 L35 240" />
-          <path d="M168 110 L216 180 L221 240" />
-          {/* Legs */}
-          <path d="M108 230 L95 380 L80 400" />
-          <path d="M148 230 L161 380 L176 400" />
-        </g>
-        {/* Interactive Zones */}
-        {zoneElements}
-      </svg>
-    );
-  };
-
   return (
     <div className="relative bg-black text-white font-['Inter'] selection:bg-teal-400/30">
-      {/* Custom CSS for liquid glass and body zones */}
       <style>{`
         .liquid-glass {
           background: rgba(255, 255, 255, 0.01);
@@ -285,13 +178,12 @@ function App() {
           opacity: 1;
           stroke: rgba(255, 255, 255, 0.8);
         }
-        /* Drawer scrollbar */
         .drawer-scroll::-webkit-scrollbar { width: 4px; }
         .drawer-scroll::-webkit-scrollbar-track { background: transparent; }
         .drawer-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
       `}</style>
 
-      {/* ===== BACKGROUND VIDEO (Hero) ===== */}
+      {/* Background Video */}
       <div className="fixed inset-0 z-0">
         <video
           autoPlay
@@ -304,7 +196,7 @@ function App() {
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
       </div>
 
-      {/* ===== MOBILE MENU OVERLAY ===== */}
+      {/* Mobile Menu Overlay */}
       <div
         className={`fixed inset-0 z-20 md:hidden transition-opacity duration-500 ease-out ${
           menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
@@ -327,25 +219,21 @@ function App() {
         </div>
       </div>
 
-      {/* ===== HERO SECTION (100vh) ===== */}
+      {/* Hero Section */}
       <section className="relative z-10 min-h-screen flex flex-col">
-        {/* Navigation Pill */}
         <nav className="flex justify-between items-center px-5 pt-6 sm:px-8 sm:pt-8 md:px-16 lg:px-20">
-          {/* Logo */}
           <div className="flex-shrink-0">
             <svg width="36" height="36" viewBox="0 0 256 256" fill="white" className="md:w-[40px] md:h-[40px]">
               <path d="M 128 128 C 198.692 128 256 185.308 256 256 L 151.883 256 C 149.812 220.307 120.213 192 84 192 C 47.787 192 18.188 220.307 16.117 256 L 0 256 C 0 185.308 57.308 128 128 128 Z M 104.117 0 C 106.188 35.694 135.787 64 172 64 C 208.213 64 237.812 35.694 239.883 0 L 256 0 C 256 70.692 198.692 128 128 128 C 57.308 128 0 70.692 0 0 Z" />
             </svg>
           </div>
 
-          {/* Desktop Nav Links */}
           <div className="hidden md:flex liquid-glass rounded-full px-8 py-3 gap-8">
             <button onClick={() => scrollToSection(mapSectionRef)} className="text-sm font-medium text-white/70 hover:text-white transition-colors">Mapa Corporal</button>
             <button onClick={() => scrollToSection(specSectionRef)} className="text-sm font-medium text-white/70 hover:text-white transition-colors">Especializações</button>
             <button onClick={() => scrollToSection(aboutSectionRef)} className="text-sm font-medium text-white/70 hover:text-white transition-colors">Saiba Mais Sobre Nós</button>
           </div>
 
-          {/* Desktop CTA + Mobile Menu Toggle */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Gostaria de falar com um especialista.`, '_blank')}
@@ -363,10 +251,8 @@ function App() {
           </div>
         </nav>
 
-        {/* Hero Content */}
         <div className={`flex-1 flex flex-col justify-center px-5 sm:px-8 md:px-16 lg:px-20 transition-opacity duration-500 ${menuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <div className="max-w-2xl mt-14 sm:mt-20 md:mt-28">
-            {/* Badge with avatars */}
             <div className="liquid-glass rounded-full inline-flex items-center gap-2.5 sm:gap-3 px-3 py-1.5 sm:px-4 sm:py-2 mb-5 sm:mb-6">
               <div className="flex -space-x-2">
                 {['774909', '1222271', '1239291', '697509'].map((id, i) => (
@@ -397,14 +283,13 @@ function App() {
         </div>
       </section>
 
-      {/* ===== BODY MAP SECTION ===== */}
+      {/* Body Map Section */}
       <section ref={mapSectionRef} className="relative z-10 py-24 px-5 sm:px-8 md:px-16 lg:px-20 min-h-screen flex flex-col items-center justify-center">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-white mb-4">Mapa Corporal Interativo</h2>
           <p className="text-white/60 max-w-lg mx-auto">Clique em uma área do corpo para descobrir condições comuns, tratamentos e falar com um especialista.</p>
         </div>
 
-        {/* View Toggle */}
         <div className="liquid-glass rounded-full p-1 flex mb-10">
           <button
             onClick={() => setActiveView('front')}
@@ -420,11 +305,69 @@ function App() {
           </button>
         </div>
 
-        {/* SVG Body Map */}
         <div className="relative w-full max-w-[320px] sm:max-w-[400px] md:max-w-[480px] lg:max-w-[560px] mx-auto">
           <div className="liquid-glass rounded-3xl p-6 sm:p-10 backdrop-blur-md bg-black/20">
-            {renderBodyMap()}
-            {/* Floating label on hover */}
+            <svg
+              viewBox="0 0 256 440"
+              className={`w-full h-auto transition-all duration-300 ${hoveredZone ? 'zone-dimmed' : ''}`}
+              onMouseOver={(e) => {
+                const target = e.target as SVGElement;
+                const zoneId = target.getAttribute('data-zone-id');
+                if (zoneId) setHoveredZone(zoneId);
+              }}
+              onMouseOut={() => setHoveredZone(null)}
+              onClick={(e) => {
+                const target = e.target as SVGElement;
+                const zoneId = target.getAttribute('data-zone-id');
+                if (zoneId) handleZoneClick(zoneId);
+              }}
+            >
+              <g fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5">
+                <circle cx="128" cy="52" r="32" />
+                <line x1="128" y1="84" x2="128" y2="100" />
+                <rect x="88" y="100" width="80" height="130" rx="20" />
+                <path d="M88 110 L40 180 L35 240" />
+                <path d="M168 110 L216 180 L221 240" />
+                <path d="M108 230 L95 380 L80 400" />
+                <path d="M148 230 L161 380 L176 400" />
+              </g>
+              {activeView === 'front' ? (
+                <g>
+                  <circle data-zone-id="head_neck" cx="128" cy="52" r="32" className="body-zone" />
+                  <ellipse data-zone-id="shoulder" cx="80" cy="100" rx="22" ry="18" className="body-zone" />
+                  <ellipse data-zone-id="shoulder" cx="176" cy="100" rx="22" ry="18" className="body-zone" />
+                  <circle data-zone-id="elbow" cx="70" cy="170" r="15" className="body-zone" />
+                  <circle data-zone-id="elbow" cx="186" cy="170" r="15" className="body-zone" />
+                  <circle data-zone-id="wrist" cx="62" cy="240" r="13" className="body-zone" />
+                  <circle data-zone-id="wrist" cx="194" cy="240" r="13" className="body-zone" />
+                  <rect data-zone-id="thoracic" x="100" y="100" width="56" height="70" rx="12" className="body-zone" />
+                  <rect data-zone-id="chest" x="100" y="100" width="56" height="50" rx="12" className="body-zone" />
+                  <rect data-zone-id="lumbar" x="106" y="170" width="44" height="60" rx="12" className="body-zone" />
+                  <circle data-zone-id="hip" cx="100" cy="230" r="22" className="body-zone" />
+                  <circle data-zone-id="hip" cx="156" cy="230" r="22" className="body-zone" />
+                  <circle data-zone-id="knee" cx="100" cy="310" r="18" className="body-zone" />
+                  <circle data-zone-id="knee" cx="156" cy="310" r="18" className="body-zone" />
+                  <circle data-zone-id="ankle" cx="100" cy="390" r="16" className="body-zone" />
+                  <circle data-zone-id="ankle" cx="156" cy="390" r="16" className="body-zone" />
+                </g>
+              ) : (
+                <g>
+                  <circle data-zone-id="head_neck" cx="128" cy="52" r="32" className="body-zone" />
+                  <ellipse data-zone-id="shoulder" cx="80" cy="100" rx="22" ry="18" className="body-zone" />
+                  <ellipse data-zone-id="shoulder" cx="176" cy="100" rx="22" ry="18" className="body-zone" />
+                  <circle data-zone-id="elbow" cx="70" cy="170" r="15" className="body-zone" />
+                  <circle data-zone-id="elbow" cx="186" cy="170" r="15" className="body-zone" />
+                  <rect data-zone-id="thoracic" x="100" y="100" width="56" height="70" rx="12" className="body-zone" />
+                  <rect data-zone-id="lumbar" x="106" y="170" width="44" height="60" rx="12" className="body-zone" />
+                  <circle data-zone-id="hip" cx="100" cy="230" r="22" className="body-zone" />
+                  <circle data-zone-id="hip" cx="156" cy="230" r="22" className="body-zone" />
+                  <circle data-zone-id="knee" cx="100" cy="310" r="18" className="body-zone" />
+                  <circle data-zone-id="knee" cx="156" cy="310" r="18" className="body-zone" />
+                  <circle data-zone-id="ankle" cx="100" cy="390" r="16" className="body-zone" />
+                  <circle data-zone-id="ankle" cx="156" cy="390" r="16" className="body-zone" />
+                </g>
+              )}
+            </svg>
             {hoveredZone && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 liquid-glass rounded-full px-4 py-1.5 text-sm font-medium text-teal-300 shadow-lg pointer-events-none">
                 {ZONES.find(z => z.id === hoveredZone)?.title}
@@ -434,7 +377,7 @@ function App() {
         </div>
       </section>
 
-      {/* ===== SPECIALIZATIONS SECTION ===== */}
+      {/* Specializations Section */}
       <section ref={specSectionRef} className="relative z-10 py-24 px-5 sm:px-8 md:px-16 lg:px-20">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-white mb-4">Nossas Especializações</h2>
@@ -454,7 +397,7 @@ function App() {
         </div>
       </section>
 
-      {/* ===== ABOUT US SECTION ===== */}
+      {/* About Section */}
       <section ref={aboutSectionRef} className="relative z-10 py-24 px-5 sm:px-8 md:px-16 lg:px-20">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
@@ -468,13 +411,11 @@ function App() {
               </p>
             </div>
             <div className="liquid-glass rounded-3xl overflow-hidden h-64 sm:h-80">
-              {/* TODO: Replace with actual clinic/team image or video */}
               <div className="w-full h-full bg-gradient-to-br from-teal-900/40 to-black/60 flex items-center justify-center text-white/40 text-lg font-light">
                 Foto da Equipe / Clínica
               </div>
             </div>
           </div>
-          {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               { number: '+10', label: 'Anos de experiência' },
@@ -490,7 +431,7 @@ function App() {
         </div>
       </section>
 
-      {/* ===== FOOTER ===== */}
+      {/* Footer */}
       <footer className="relative z-10 border-t border-white/5 bg-black/20 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 md:px-16 lg:px-20 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
@@ -516,18 +457,16 @@ function App() {
         </div>
       </footer>
 
-      {/* ===== DRAWER (Painel Lateral) ===== */}
+      {/* Drawer Panel */}
       <div
         className={`fixed inset-y-0 right-0 z-30 w-full max-w-md transition-transform duration-500 ease-out transform ${
           selectedZone ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Overlay */}
         <div
           className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${selectedZone ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setSelectedZone(null)}
         />
-        {/* Drawer Content */}
         <div className="relative ml-auto w-full max-w-md h-full liquid-glass border-l border-white/10 bg-black/40 backdrop-blur-xl overflow-y-auto drawer-scroll p-6 sm:p-8">
           <button
             onClick={() => setSelectedZone(null)}
@@ -556,7 +495,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Mini Video */}
               <div className="liquid-glass rounded-xl overflow-hidden aspect-video">
                 {ZONE_VIDEOS[currentZoneData.title] ? (
                   <video
@@ -574,7 +512,6 @@ function App() {
                 )}
               </div>
 
-              {/* Quick Triage Form */}
               <div className="space-y-4">
                 <h4 className="text-lg font-medium text-white">Pré-avaliação rápida</h4>
                 <input
