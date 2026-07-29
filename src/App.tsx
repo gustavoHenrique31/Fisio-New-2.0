@@ -312,7 +312,7 @@ function App() {
             {/* Imagem do corpo humano */}
             <div className="relative w-full" style={{ maxWidth: '400px', margin: '0 auto' }}>
               <img 
-                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YW5hdG9teSUyMGJvZHl8ZW58MHx8MHx8fDA%3D"
+                src="https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg"
                 alt="Corpo humano"
                 className="w-full h-auto opacity-80"
                 style={{ filter: 'brightness(1.2) contrast(0.9)' }}
