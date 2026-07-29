@@ -43,8 +43,8 @@ const YOUTUBE_URL = 'https://youtube.com';
 // Chave da API DeepSeek (substitua pela sua)
 const DEEPSEEK_API_KEY = 'sk-2d723de6f58e48b7abab17a0776a5896';
 
-const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
-const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
+const BODY_FRONT_IMAGE = '/assets/defrente.png';
+const BODY_BACK_IMAGE = '/assets/decosta.png';
 
 const ZONE_VIDEOS: Record<string, string> = {
   'Cabeça e Cervical': '',
