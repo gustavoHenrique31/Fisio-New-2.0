@@ -210,7 +210,8 @@ function App() {
     setChatLoading(true);
 
     try {
-      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      // URL correta da API DeepSeek
+      const response = await fetch('https://api.deepseek.com/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -227,20 +228,39 @@ function App() {
             { role: 'user', content: userMessage }
           ],
           max_tokens: 300,
-          temperature: 0.7
+          temperature: 0.7,
+          stream: false
         })
       });
 
-      if (!response.ok) throw new Error('Erro na API');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro DeepSeek:', response.status, errorData);
+        throw new Error(`Erro ${response.status}: ${errorData.error?.message || 'Falha na requisição'}`);
+      }
 
       const data = await response.json();
       const assistantMessage = data.choices[0].message.content;
       
       setChatMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
     } catch (error) {
+      console.error('Erro no chat:', error);
+      
+      let errorMessage = 'Desculpe, estou com dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo WhatsApp para falar com um especialista.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('401')) {
+          errorMessage = 'Erro de autenticação. Por favor, verifique se a chave da API está correta.';
+        } else if (error.message.includes('429')) {
+          errorMessage = 'Muitas solicitações. Por favor, aguarde um momento e tente novamente.';
+        } else if (error.message.includes('500')) {
+          errorMessage = 'O servidor está temporariamente indisponível. Tente novamente em alguns instantes.';
+        }
+      }
+      
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Desculpe, estou com dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo WhatsApp para falar com um especialista.' 
+        content: errorMessage
       }]);
     } finally {
       setChatLoading(false);
@@ -380,11 +400,11 @@ function App() {
         style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(30px)' }}>
         <div className="flex flex-col items-center justify-center h-full gap-8">
           {[
-            { label: 'Mapa Corporal', ref: mapSectionRef, delay: '100' },
-            { label: 'Especializações', ref: specSectionRef, delay: '150' },
-            { label: 'Sobre Nós', ref: aboutSectionRef, delay: '200' },
-          ].map((item) => (
-            <div key={item.label} className={`transition-all duration-500 delay-${item.delay} ${menuOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+            { label: 'Mapa Corporal', ref: mapSectionRef },
+            { label: 'Especializações', ref: specSectionRef },
+            { label: 'Sobre Nós', ref: aboutSectionRef },
+          ].map((item, idx) => (
+            <div key={item.label} className={`transition-all duration-500 ${menuOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`} style={{ transitionDelay: `${100 + idx * 50}ms` }}>
               <button onClick={() => scrollToSection(item.ref)} className="text-2xl font-light text-white hover:text-teal-300 transition-colors tracking-wide">{item.label}</button>
             </div>
           ))}
@@ -531,7 +551,6 @@ function App() {
                   })}
                 </div>
 
-                {/* Botão para abrir chat com IA */}
                 <button onClick={() => setShowChatModal(true)}
                   className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 transition-all duration-300 group">
                   <Bot className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
