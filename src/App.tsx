@@ -24,6 +24,10 @@ import {
   ClipboardList,
   Send,
   ChevronDown,
+  Target,
+  Zap,
+  TrendingUp,
+  ThumbsUp,
 } from 'lucide-react';
 
 // --- CONFIGURÁVEL: Troque aqui os dados reais ---
@@ -86,6 +90,14 @@ const HERO_BENEFITS = [
   { icon: Shield, text: 'Técnicas avançadas' },
   { icon: Clock, text: 'Atendimento ágil' },
   { icon: Award, text: '+10 anos de excelência' },
+];
+
+// Dados dos steps de tratamento
+const TREATMENT_STEPS = [
+  { icon: Target, title: 'Avaliação', desc: 'Análise postural e testes específicos para diagnóstico preciso.' },
+  { icon: Zap, title: 'Tratamento', desc: 'Técnicas manuais, exercícios e equipamentos de última geração.' },
+  { icon: TrendingUp, title: 'Evolução', desc: 'Acompanhamento contínuo com reavaliações periódicas.' },
+  { icon: ThumbsUp, title: 'Alta', desc: 'Recuperação completa com prevenção de novas lesões.' },
 ];
 
 function App() {
@@ -235,9 +247,13 @@ function App() {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        @keyframes fadeInLeft {
+          from { opacity: 0; transform: translateX(-30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeInRight {
+          from { opacity: 0; transform: translateX(30px); }
+          to { opacity: 1; transform: translateX(0); }
         }
         @keyframes modalIn {
           from { opacity: 0; transform: scale(0.92) translateY(30px); }
@@ -262,11 +278,20 @@ function App() {
           animation: fadeInUp 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.3s forwards;
           opacity: 0;
         }
+        .animate-fade-in-left {
+          animation: fadeInLeft 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+        }
+        .animate-fade-in-right {
+          animation: fadeInRight 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+        }
         .animate-modal-in {
           animation: modalIn 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
         }
         .animate-pulse-subtle {
           animation: pulse 2s ease-in-out infinite;
+        }
+        .animate-slide-down {
+          animation: slideDown 0.3s ease-out forwards;
         }
         .hover-lift {
           transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.3s ease;
@@ -281,12 +306,22 @@ function App() {
           -webkit-text-fill-color: transparent;
           background-clip: text;
         }
-        .nav-blur {
-          transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+        .gradient-border {
+          position: relative;
+        }
+        .gradient-border::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 60px;
+          height: 2px;
+          background: linear-gradient(90deg, #5eead4, transparent);
+          border-radius: 2px;
         }
       `}</style>
 
-      {/* Background Video com overlay gradiente */}
+      {/* Background Video */}
       <div className="fixed inset-0 z-0">
         <video
           autoPlay
@@ -332,7 +367,6 @@ function App() {
 
       {/* Hero Section */}
       <section className="relative z-10 min-h-screen flex flex-col">
-        {/* Navigation - efeito de scroll */}
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled ? 'bg-black/40 backdrop-blur-xl shadow-2xl shadow-black/20' : ''
         }`}>
@@ -368,7 +402,6 @@ function App() {
           </div>
         </nav>
 
-        {/* Hero Content */}
         <div className={`flex-1 flex items-center px-5 sm:px-8 md:px-16 lg:px-20 transition-opacity duration-500 pt-20 ${menuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <div className="w-full max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -443,115 +476,180 @@ function App() {
           </div>
         </div>
 
-        {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-pulse-subtle hidden md:block">
           <ChevronDown className="h-6 w-6 text-white/40" />
         </div>
       </section>
 
-      {/* Body Map Section */}
-      <section ref={mapSectionRef} className="relative z-10 py-24 px-5 sm:px-8 md:px-16 lg:px-20 min-h-screen flex flex-col items-center justify-center">
+      {/* Body Map Section - Layout lado a lado */}
+      <section ref={mapSectionRef} className="relative z-10 py-24 px-5 sm:px-8 md:px-16 lg:px-20 min-h-screen flex flex-col justify-center">
         <div className="text-center mb-16">
           <span className="text-teal-400/80 text-sm font-medium tracking-widest uppercase mb-4 block">Interativo</span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-white mb-4 tracking-tight">Mapa Corporal Interativo</h2>
           <p className="text-white/50 max-w-lg mx-auto font-light leading-relaxed">Clique em uma área do corpo para descobrir condições comuns, tratamentos e falar com um especialista.</p>
         </div>
 
-        <div className="liquid-glass rounded-full p-1 flex mb-12">
-          <button
-            onClick={() => setActiveView('front')}
-            className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-              activeView === 'front' 
-                ? 'bg-white/10 text-white shadow-lg shadow-teal-400/10' 
-                : 'text-white/40 hover:text-white/70'
-            }`}
-          >
-            Frente
-          </button>
-          <button
-            onClick={() => setActiveView('back')}
-            className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-              activeView === 'back' 
-                ? 'bg-white/10 text-white shadow-lg shadow-teal-400/10' 
-                : 'text-white/40 hover:text-white/70'
-            }`}
-          >
-            Costas
-          </button>
-        </div>
+        {/* Layout: Texto à esquerda + Corpo à direita */}
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            
+            {/* Coluna da Esquerda - Conteúdo informativo */}
+            <div className="animate-fade-in-left order-2 lg:order-1">
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-2xl sm:text-3xl font-light text-white mb-4 gradient-border pb-4">
+                    Como funciona nosso tratamento
+                  </h3>
+                  <p className="text-white/50 font-light leading-relaxed">
+                    Nossa metodologia é baseada em quatro pilares fundamentais que garantem sua recuperação completa e segura.
+                  </p>
+                </div>
 
-        <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[400px] mx-auto">
-          <div className="liquid-glass rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-md bg-black/10 relative hover-lift transition-all duration-500">
-            
-            <div className="relative w-full max-w-[260px] sm:max-w-[280px] md:max-w-[300px] mx-auto">
-              <img 
-                src={activeView === 'front' ? BODY_FRONT_IMAGE : BODY_BACK_IMAGE}
-                alt={activeView === 'front' ? 'Corpo humano vista frontal' : 'Corpo humano vista costas'}
-                className="w-full h-auto opacity-85"
-                style={{ filter: 'brightness(1.1) contrast(0.95)' }}
-                loading="lazy"
-              />
-              
-              <svg
-                viewBox="0 0 400 700"
-                className="absolute inset-0 w-full h-full"
-                aria-label="Mapa corporal interativo"
-                onMouseOver={(e) => {
-                  const target = e.target as SVGElement;
-                  const zoneId = target.getAttribute('data-zone-id');
-                  if (zoneId) setHoveredZone(zoneId);
-                }}
-                onMouseOut={() => setHoveredZone(null)}
-                onClick={(e) => {
-                  const target = e.target as SVGElement;
-                  const zoneId = target.getAttribute('data-zone-id');
-                  if (zoneId) handleZoneClick(zoneId);
-                }}
-              >
-                {activeView === 'front' ? (
-                  <g className={hoveredZone ? 'zone-dimmed' : ''}>
-                    <ellipse data-zone-id="head_neck" cx="200" cy="60" rx="55" ry="65" className="body-zone" />
-                    <ellipse data-zone-id="shoulder" cx="130" cy="150" rx="35" ry="25" className="body-zone" />
-                    <ellipse data-zone-id="shoulder" cx="270" cy="150" rx="35" ry="25" className="body-zone" />
-                    <rect data-zone-id="chest" x="155" y="135" width="90" height="80" rx="15" className="body-zone" />
-                    <circle data-zone-id="elbow" cx="105" cy="235" r="20" className="body-zone" />
-                    <circle data-zone-id="elbow" cx="295" cy="235" r="20" className="body-zone" />
-                    <circle data-zone-id="wrist" cx="95" cy="305" r="16" className="body-zone" />
-                    <circle data-zone-id="wrist" cx="305" cy="305" r="16" className="body-zone" />
-                    <rect data-zone-id="thoracic" x="170" y="195" width="60" height="95" rx="15" className="body-zone" />
-                    <rect data-zone-id="lumbar" x="175" y="290" width="50" height="80" rx="15" className="body-zone" />
-                    <circle data-zone-id="hip" cx="162" cy="380" r="32" className="body-zone" />
-                    <circle data-zone-id="hip" cx="238" cy="380" r="32" className="body-zone" />
-                    <circle data-zone-id="knee" cx="165" cy="475" r="26" className="body-zone" />
-                    <circle data-zone-id="knee" cx="235" cy="475" r="26" className="body-zone" />
-                    <circle data-zone-id="ankle" cx="162" cy="570" r="22" className="body-zone" />
-                    <circle data-zone-id="ankle" cx="238" cy="570" r="22" className="body-zone" />
-                  </g>
-                ) : (
-                  <g className={hoveredZone ? 'zone-dimmed' : ''}>
-                    <ellipse data-zone-id="head_neck" cx="200" cy="60" rx="55" ry="65" className="body-zone" />
-                    <ellipse data-zone-id="shoulder" cx="130" cy="150" rx="35" ry="25" className="body-zone" />
-                    <ellipse data-zone-id="shoulder" cx="270" cy="150" rx="35" ry="25" className="body-zone" />
-                    <rect data-zone-id="thoracic" x="170" y="195" width="60" height="95" rx="15" className="body-zone" />
-                    <circle data-zone-id="elbow" cx="105" cy="235" r="20" className="body-zone" />
-                    <circle data-zone-id="elbow" cx="295" cy="235" r="20" className="body-zone" />
-                    <rect data-zone-id="lumbar" x="175" y="290" width="50" height="80" rx="15" className="body-zone" />
-                    <circle data-zone-id="hip" cx="162" cy="380" r="32" className="body-zone" />
-                    <circle data-zone-id="hip" cx="238" cy="380" r="32" className="body-zone" />
-                    <circle data-zone-id="knee" cx="165" cy="475" r="26" className="body-zone" />
-                    <circle data-zone-id="knee" cx="235" cy="475" r="26" className="body-zone" />
-                    <circle data-zone-id="ankle" cx="162" cy="570" r="22" className="body-zone" />
-                    <circle data-zone-id="ankle" cx="238" cy="570" r="22" className="body-zone" />
-                  </g>
-                )}
-              </svg>
-            </div>
-            
-            {hoveredZone && (
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 liquid-glass rounded-full px-4 py-2 text-xs sm:text-sm font-medium text-teal-300 shadow-2xl shadow-teal-400/20 pointer-events-none z-10 whitespace-nowrap animate-slide-down">
-                {ZONES.find(z => z.id === hoveredZone)?.title}
+                {/* Timeline Steps */}
+                <div className="space-y-4">
+                  {TREATMENT_STEPS.map((step, idx) => {
+                    const Icon = step.icon;
+                    return (
+                      <div key={idx} className="liquid-glass rounded-2xl p-5 hover-lift transition-all duration-300 group cursor-default">
+                        <div className="flex gap-4">
+                          <div className="flex-shrink-0 relative">
+                            <div className="absolute inset-0 bg-teal-400/20 rounded-full blur-lg group-hover:bg-teal-400/30 transition-all duration-500"></div>
+                            <div className="relative z-10 w-10 h-10 rounded-full bg-teal-500/10 border border-teal-400/20 flex items-center justify-center">
+                              <Icon className="h-5 w-5 text-teal-400" strokeWidth={1.5} />
+                            </div>
+                            {idx < TREATMENT_STEPS.length - 1 && (
+                              <div className="absolute top-12 left-5 w-px h-6 bg-gradient-to-b from-teal-400/30 to-transparent"></div>
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="text-white font-medium mb-1 group-hover:text-teal-300 transition-colors duration-300">{step.title}</h4>
+                            <p className="text-white/40 text-sm font-light leading-relaxed">{step.desc}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* CTA abaixo dos steps */}
+                <button
+                  onClick={() => {
+                    if (selectedZone) {
+                      resetForm();
+                      setShowFormModal(true);
+                    } else {
+                      const firstZone = ZONES[0].id;
+                      handleZoneClick(firstZone);
+                    }
+                  }}
+                  className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 transition-all duration-300 group"
+                >
+                  <ClipboardList className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+                  {selectedZone ? 'Quero uma pré-avaliação' : 'Iniciar avaliação corporal'}
+                </button>
               </div>
-            )}
+            </div>
+
+            {/* Coluna da Direita - Corpo Interativo */}
+            <div className="animate-fade-in-right order-1 lg:order-2 flex flex-col items-center">
+              <div className="liquid-glass rounded-full p-1 flex mb-8">
+                <button
+                  onClick={() => setActiveView('front')}
+                  className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                    activeView === 'front' 
+                      ? 'bg-white/10 text-white shadow-lg shadow-teal-400/10' 
+                      : 'text-white/40 hover:text-white/70'
+                  }`}
+                >
+                  Frente
+                </button>
+                <button
+                  onClick={() => setActiveView('back')}
+                  className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                    activeView === 'back' 
+                      ? 'bg-white/10 text-white shadow-lg shadow-teal-400/10' 
+                      : 'text-white/40 hover:text-white/70'
+                  }`}
+                >
+                  Costas
+                </button>
+              </div>
+
+              <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[400px] mx-auto">
+                <div className="liquid-glass rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-md bg-black/10 relative hover-lift transition-all duration-500">
+                  
+                  <div className="relative w-full max-w-[260px] sm:max-w-[280px] md:max-w-[300px] mx-auto">
+                    <img 
+                      src={activeView === 'front' ? BODY_FRONT_IMAGE : BODY_BACK_IMAGE}
+                      alt={activeView === 'front' ? 'Corpo humano vista frontal' : 'Corpo humano vista costas'}
+                      className="w-full h-auto opacity-85"
+                      style={{ filter: 'brightness(1.1) contrast(0.95)' }}
+                      loading="lazy"
+                    />
+                    
+                    <svg
+                      viewBox="0 0 400 700"
+                      className="absolute inset-0 w-full h-full"
+                      aria-label="Mapa corporal interativo"
+                      onMouseOver={(e) => {
+                        const target = e.target as SVGElement;
+                        const zoneId = target.getAttribute('data-zone-id');
+                        if (zoneId) setHoveredZone(zoneId);
+                      }}
+                      onMouseOut={() => setHoveredZone(null)}
+                      onClick={(e) => {
+                        const target = e.target as SVGElement;
+                        const zoneId = target.getAttribute('data-zone-id');
+                        if (zoneId) handleZoneClick(zoneId);
+                      }}
+                    >
+                      {activeView === 'front' ? (
+                        <g className={hoveredZone ? 'zone-dimmed' : ''}>
+                          <ellipse data-zone-id="head_neck" cx="200" cy="60" rx="55" ry="65" className="body-zone" />
+                          <ellipse data-zone-id="shoulder" cx="130" cy="150" rx="35" ry="25" className="body-zone" />
+                          <ellipse data-zone-id="shoulder" cx="270" cy="150" rx="35" ry="25" className="body-zone" />
+                          <rect data-zone-id="chest" x="155" y="135" width="90" height="80" rx="15" className="body-zone" />
+                          <circle data-zone-id="elbow" cx="105" cy="235" r="20" className="body-zone" />
+                          <circle data-zone-id="elbow" cx="295" cy="235" r="20" className="body-zone" />
+                          <circle data-zone-id="wrist" cx="95" cy="305" r="16" className="body-zone" />
+                          <circle data-zone-id="wrist" cx="305" cy="305" r="16" className="body-zone" />
+                          <rect data-zone-id="thoracic" x="170" y="195" width="60" height="95" rx="15" className="body-zone" />
+                          <rect data-zone-id="lumbar" x="175" y="290" width="50" height="80" rx="15" className="body-zone" />
+                          <circle data-zone-id="hip" cx="162" cy="380" r="32" className="body-zone" />
+                          <circle data-zone-id="hip" cx="238" cy="380" r="32" className="body-zone" />
+                          <circle data-zone-id="knee" cx="165" cy="475" r="26" className="body-zone" />
+                          <circle data-zone-id="knee" cx="235" cy="475" r="26" className="body-zone" />
+                          <circle data-zone-id="ankle" cx="162" cy="570" r="22" className="body-zone" />
+                          <circle data-zone-id="ankle" cx="238" cy="570" r="22" className="body-zone" />
+                        </g>
+                      ) : (
+                        <g className={hoveredZone ? 'zone-dimmed' : ''}>
+                          <ellipse data-zone-id="head_neck" cx="200" cy="60" rx="55" ry="65" className="body-zone" />
+                          <ellipse data-zone-id="shoulder" cx="130" cy="150" rx="35" ry="25" className="body-zone" />
+                          <ellipse data-zone-id="shoulder" cx="270" cy="150" rx="35" ry="25" className="body-zone" />
+                          <rect data-zone-id="thoracic" x="170" y="195" width="60" height="95" rx="15" className="body-zone" />
+                          <circle data-zone-id="elbow" cx="105" cy="235" r="20" className="body-zone" />
+                          <circle data-zone-id="elbow" cx="295" cy="235" r="20" className="body-zone" />
+                          <rect data-zone-id="lumbar" x="175" y="290" width="50" height="80" rx="15" className="body-zone" />
+                          <circle data-zone-id="hip" cx="162" cy="380" r="32" className="body-zone" />
+                          <circle data-zone-id="hip" cx="238" cy="380" r="32" className="body-zone" />
+                          <circle data-zone-id="knee" cx="165" cy="475" r="26" className="body-zone" />
+                          <circle data-zone-id="knee" cx="235" cy="475" r="26" className="body-zone" />
+                          <circle data-zone-id="ankle" cx="162" cy="570" r="22" className="body-zone" />
+                          <circle data-zone-id="ankle" cx="238" cy="570" r="22" className="body-zone" />
+                        </g>
+                      )}
+                    </svg>
+                  </div>
+                  
+                  {hoveredZone && (
+                    <div className="absolute top-3 left-1/2 -translate-x-1/2 liquid-glass rounded-full px-4 py-2 text-xs sm:text-sm font-medium text-teal-300 shadow-2xl shadow-teal-400/20 pointer-events-none z-10 whitespace-nowrap animate-slide-down">
+                      {ZONES.find(z => z.id === hoveredZone)?.title}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -604,7 +702,6 @@ function App() {
             </div>
           </div>
           
-          {/* Stats com design melhorado */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
             {[
               { number: '+10', label: 'Anos de experiência', icon: Clock },
@@ -624,7 +721,7 @@ function App() {
         </div>
       </section>
 
-      {/* Footer melhorado */}
+      {/* Footer */}
       <footer className="relative z-10 border-t border-white/5 bg-black/30 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 md:px-16 lg:px-20 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
