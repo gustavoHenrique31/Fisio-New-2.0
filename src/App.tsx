@@ -23,7 +23,6 @@ import {
   Sparkles,
   ClipboardList,
   Send,
-  ChevronDown,
   Target,
   Zap,
   TrendingUp,
@@ -39,8 +38,8 @@ const INSTAGRAM_URL = 'https://instagram.com';
 const FACEBOOK_URL = 'https://facebook.com';
 const YOUTUBE_URL = 'https://youtube.com';
 
-const BODY_FRONT_IMAGE = '/assets/defrente.png';
-const BODY_BACK_IMAGE = '/assets/decosta.png';
+const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
+const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
 
 const ZONE_VIDEOS: Record<string, string> = {
   'Cabeça e Cervical': '',
@@ -99,7 +98,6 @@ const TREATMENT_STEPS = [
   { icon: ThumbsUp, title: 'Alta', desc: 'Recuperação completa com prevenção de novas lesões.' },
 ];
 
-// Perguntas frequentes prontas
 const FAQ_QUESTIONS = [
   { question: 'O que causa dor no ombro?', answer: 'Dor no ombro pode ser causada por bursite, tendinite, má postura ou movimentos repetitivos. Recomendamos uma avaliação para diagnóstico preciso.' },
   { question: 'Quanto tempo dura o tratamento?', answer: 'O tempo varia conforme cada caso, mas geralmente de 4 a 16 semanas. Na primeira consulta já conseguimos estimar melhor.' },
@@ -502,44 +500,46 @@ function App() {
         </div>
       </footer>
 
-      {/* ✅ DRAWER - COM BOTÃO VISÍVEL */}
+      {/* ✅ DRAWER COMPACTO - BOTÃO VISÍVEL */}
       <div className={`fixed inset-y-0 right-0 z-30 w-full max-w-md transition-transform duration-500 ${selectedZone && !showFormModal && !showFAQModal ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedZone(null)} />
-        <div ref={drawerContentRef} className="relative ml-auto w-full max-w-md h-full liquid-glass border-l border-white/5 bg-black/60 backdrop-blur-2xl overflow-y-auto drawer-scroll p-8">
-          <button onClick={() => setSelectedZone(null)} className="sticky top-4 float-right liquid-glass h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white z-10">
+        <div ref={drawerContentRef} className="relative ml-auto w-full max-w-md h-full liquid-glass border-l border-white/5 bg-black/60 backdrop-blur-2xl overflow-y-auto drawer-scroll p-6">
+          <button onClick={() => setSelectedZone(null)} className="sticky top-3 float-right liquid-glass h-8 w-8 rounded-full flex items-center justify-center text-white/50 hover:text-white z-10">
             <X className="h-4 w-4" />
           </button>
           {currentZoneData && (
-            <div className="mt-12 space-y-6 pb-8">
+            <div className="mt-10 space-y-4 pb-6">
               <div>
                 <span className="text-teal-400/70 text-xs uppercase tracking-widest">Área selecionada</span>
-                <h3 className="text-2xl font-medium text-white mt-1">{currentZoneData.title}</h3>
+                <h3 className="text-xl font-medium text-white mt-0.5">{currentZoneData.title}</h3>
               </div>
-              <div className="space-y-4">
-                <div className="liquid-glass rounded-xl p-5">
-                  <span className="text-xs text-white/40 uppercase">Problema comum</span>
-                  <p className="text-white/80 mt-1">{currentZoneData.problem}</p>
+              
+              <div className="space-y-3">
+                <div className="liquid-glass rounded-lg p-3">
+                  <span className="text-[10px] text-white/40 uppercase tracking-wider font-medium">Problema comum</span>
+                  <p className="text-white/80 text-sm mt-0.5">{currentZoneData.problem}</p>
                 </div>
-                <div className="liquid-glass rounded-xl p-5">
-                  <span className="text-xs text-white/40 uppercase">Tempo estimado</span>
-                  <p className="text-white/80 mt-1">{currentZoneData.recovery}</p>
-                  <p className="text-xs text-white/25 mt-1">*Estimativa geral</p>
+                <div className="liquid-glass rounded-lg p-3">
+                  <span className="text-[10px] text-white/40 uppercase tracking-wider font-medium">Tempo estimado</span>
+                  <p className="text-white/80 text-sm mt-0.5">{currentZoneData.recovery}</p>
+                  <p className="text-[10px] text-white/25 mt-0.5">*Estimativa geral</p>
                 </div>
-                <div className="liquid-glass rounded-xl p-5">
-                  <span className="text-xs text-white/40 uppercase">Método sugerido</span>
-                  <p className="text-white/80 mt-1">{currentZoneData.method}</p>
+                <div className="liquid-glass rounded-lg p-3">
+                  <span className="text-[10px] text-white/40 uppercase tracking-wider font-medium">Método sugerido</span>
+                  <p className="text-white/80 text-sm mt-0.5">{currentZoneData.method}</p>
                 </div>
               </div>
-              <div className="liquid-glass rounded-xl overflow-hidden aspect-video bg-white/[0.02] flex items-center justify-center text-white/25 text-sm">
+
+              <div className="liquid-glass rounded-lg overflow-hidden aspect-video bg-white/[0.02] flex items-center justify-center text-white/25 text-xs">
                 Vídeo em breve
               </div>
               
-              {/* ✅ BOTÃO PRÉ-AVALIAÇÃO */}
+              {/* ✅ BOTÃO PRÉ-AVALIAÇÃO BEM VISÍVEL */}
               <button 
                 onClick={() => { resetForm(); setShowFormModal(true); }} 
-                className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 bg-teal-500/5 transition-all"
+                className="liquid-glass w-full rounded-full py-3 text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 bg-teal-500/5 transition-all"
               >
-                <ClipboardList className="h-5 w-5" /> Quero uma pré-avaliação
+                <ClipboardList className="h-4 w-4" /> Quero uma pré-avaliação
               </button>
             </div>
           )}
@@ -574,7 +574,7 @@ function App() {
         </div>
       )}
 
-      {/* Modal FAQ - Perguntas prontas */}
+      {/* Modal FAQ */}
       {showFAQModal && (
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowFAQModal(false)} />
@@ -592,11 +592,7 @@ function App() {
               {selectedFAQ === null ? (
                 <div className="space-y-3">
                   {FAQ_QUESTIONS.map((faq, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedFAQ(idx)}
-                      className="liquid-glass w-full rounded-xl p-4 text-left hover:bg-teal-500/5 transition-all group"
-                    >
+                    <button key={idx} onClick={() => setSelectedFAQ(idx)} className="liquid-glass w-full rounded-xl p-4 text-left hover:bg-teal-500/5 transition-all group">
                       <div className="flex items-center justify-between">
                         <span className="text-white/80 text-sm group-hover:text-white">{faq.question}</span>
                         <ChevronRight className="h-4 w-4 text-teal-400 group-hover:translate-x-1 transition-transform" />
@@ -606,20 +602,14 @@ function App() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <button
-                    onClick={() => setSelectedFAQ(null)}
-                    className="text-teal-400 text-sm hover:text-teal-300 transition-colors flex items-center gap-1"
-                  >
+                  <button onClick={() => setSelectedFAQ(null)} className="text-teal-400 text-sm hover:text-teal-300 transition-colors flex items-center gap-1">
                     ← Voltar para perguntas
                   </button>
                   <div className="liquid-glass rounded-xl p-5">
                     <p className="text-white font-medium mb-2">{FAQ_QUESTIONS[selectedFAQ].question}</p>
                     <p className="text-white/60 text-sm leading-relaxed">{FAQ_QUESTIONS[selectedFAQ].answer}</p>
                   </div>
-                  <button
-                    onClick={() => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Tenho uma dúvida sobre: ${FAQ_QUESTIONS[selectedFAQ].question}`, '_blank')}
-                    className="liquid-glass w-full rounded-full py-3.5 text-white font-medium flex items-center justify-center gap-2 bg-teal-500/5"
-                  >
+                  <button onClick={() => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Tenho uma dúvida sobre: ${FAQ_QUESTIONS[selectedFAQ].question}`, '_blank')} className="liquid-glass w-full rounded-full py-3.5 text-white font-medium flex items-center justify-center gap-2 bg-teal-500/5">
                     <MessageCircle className="h-5 w-5" /> Falar com Especialista
                   </button>
                 </div>
