@@ -28,8 +28,7 @@ import {
   Zap,
   TrendingUp,
   ThumbsUp,
-  Bot,
-  Loader2,
+  HelpCircle,
 } from 'lucide-react';
 
 // --- CONFIGURÁVEL ---
@@ -39,9 +38,6 @@ const CLINIC_PHONE = '(11) 99999-9999';
 const INSTAGRAM_URL = 'https://instagram.com';
 const FACEBOOK_URL = 'https://facebook.com';
 const YOUTUBE_URL = 'https://youtube.com';
-
-// SUA CHAVE OPENROUTER
-const OPENROUTER_API_KEY = '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';
 
 const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
 const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
@@ -103,10 +99,14 @@ const TREATMENT_STEPS = [
   { icon: ThumbsUp, title: 'Alta', desc: 'Recuperação completa com prevenção de novas lesões.' },
 ];
 
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
+// Perguntas frequentes prontas
+const FAQ_QUESTIONS = [
+  { question: 'O que causa dor no ombro?', answer: 'Dor no ombro pode ser causada por bursite, tendinite, má postura ou movimentos repetitivos. Recomendamos uma avaliação para diagnóstico preciso.' },
+  { question: 'Quanto tempo dura o tratamento?', answer: 'O tempo varia conforme cada caso, mas geralmente de 4 a 16 semanas. Na primeira consulta já conseguimos estimar melhor.' },
+  { question: 'Vocês aceitam convênio?', answer: 'Sim! Trabalhamos com diversos convênios. Entre em contato pelo WhatsApp para verificar se aceitamos o seu.' },
+  { question: 'Preciso de encaminhamento médico?', answer: 'Não é obrigatório, mas se tiver exames ou encaminhamento, ajuda na avaliação. Podemos avaliar você diretamente.' },
+  { question: 'Como agendar uma consulta?', answer: 'É fácil! Clique no botão "Fale com um Especialista" ou chame no WhatsApp. Atendemos de segunda a sexta.' },
+];
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -114,24 +114,18 @@ function App() {
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
-  const [showChatModal, setShowChatModal] = useState(false);
+  const [showFAQModal, setShowFAQModal] = useState(false);
+  const [selectedFAQ, setSelectedFAQ] = useState<number | null>(null);
   const [nome, setNome] = useState('');
   const [idade, setIdade] = useState('');
   const [sintoma, setSintoma] = useState('');
   const [formError, setFormError] = useState('');
   const [scrolled, setScrolled] = useState(false);
 
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { role: 'assistant', content: 'Olá! Sou o assistente virtual da FisioNew, alimentado por IA. Posso responder suas dúvidas sobre fisioterapia, dores, tratamentos e muito mais. Como posso ajudar? 💚' }
-  ]);
-  const [chatInput, setChatInput] = useState('');
-  const [chatLoading, setChatLoading] = useState(false);
-
   const mapSectionRef = useRef<HTMLDivElement>(null);
   const specSectionRef = useRef<HTMLDivElement>(null);
   const aboutSectionRef = useRef<HTMLDivElement>(null);
   const drawerContentRef = useRef<HTMLDivElement>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
 
   const currentZoneData = ZONES.find(z => z.id === selectedZone);
 
@@ -146,7 +140,7 @@ function App() {
       if (e.key === 'Escape') {
         setSelectedZone(null);
         setShowFormModal(false);
-        setShowChatModal(false);
+        setShowFAQModal(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -154,19 +148,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen || showFormModal || showChatModal ? 'hidden' : '';
+    document.body.style.overflow = menuOpen || showFormModal || showFAQModal ? 'hidden' : '';
     return () => { document.body.style.overflow = '' };
-  }, [menuOpen, showFormModal, showChatModal]);
+  }, [menuOpen, showFormModal, showFAQModal]);
 
   useEffect(() => {
     if (selectedZone && drawerContentRef.current) {
       drawerContentRef.current.scrollTop = 0;
     }
   }, [selectedZone]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages]);
 
   const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
@@ -196,71 +186,6 @@ function App() {
   const handleZoneClick = (zoneId: string) => {
     resetForm();
     setSelectedZone(zoneId);
-  };
-
-  // IA com Laguna S 2.1 Free
-  const sendChatMessage = async () => {
-    if (!chatInput.trim() || chatLoading) return;
-
-    const userMessage = chatInput.trim();
-    setChatInput('');
-    setChatMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    setChatLoading(true);
-
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-          'HTTP-Referer': window.location.origin || 'https://fisionew.vercel.app',
-          'X-Title': 'FisioNew'
-        },
-        body: JSON.stringify({
-          model: 'laguna/laguna-2.1-7b:free',
-          messages: [
-            {
-              role: 'system',
-              content: 'Você é um assistente virtual de uma clínica de fisioterapia. Responda em português, de forma acolhedora e profissional. Fale sobre fisioterapia, dores musculares, lesões ortopédicas. Respostas curtas (2-4 frases). Não dê diagnósticos médicos.'
-            },
-            ...chatMessages.map(m => ({ role: m.role, content: m.content })),
-            { role: 'user', content: userMessage }
-          ],
-          max_tokens: 300,
-          temperature: 0.7
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Erro OpenRouter:', response.status, errorText);
-        throw new Error(`Erro ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      if (data.choices && data.choices[0] && data.choices[0].message) {
-        const assistantMessage = data.choices[0].message.content;
-        setChatMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
-      } else {
-        throw new Error('Resposta inesperada');
-      }
-    } catch (error) {
-      console.error('Erro no chat:', error);
-      setChatMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Desculpe, estou com dificuldades técnicas. Tente novamente ou fale com um especialista pelo WhatsApp. 📱'
-      }]);
-    } finally {
-      setChatLoading(false);
-    }
-  };
-
-  const handleChatKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendChatMessage();
-    }
   };
 
   return (
@@ -305,10 +230,8 @@ function App() {
         .drawer-scroll::-webkit-scrollbar-thumb { background: rgba(94, 234, 212, 0.2); border-radius: 10px; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
-        @keyframes typing { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
         .animate-fade-in-up { animation: fadeInUp 0.7s ease-out forwards; }
         .animate-modal-in { animation: modalIn 0.3s ease-out forwards; }
-        .animate-typing { animation: typing 1.4s ease-in-out infinite; }
         .hover-lift { transition: transform 0.3s ease; }
         .hover-lift:hover { transform: translateY(-4px); }
         .gradient-text {
@@ -447,8 +370,8 @@ function App() {
                   );
                 })}
               </div>
-              <button onClick={() => setShowChatModal(true)} className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2">
-                <Bot className="h-5 w-5" /> Tirar dúvidas com IA
+              <button onClick={() => setShowFAQModal(true)} className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2">
+                <HelpCircle className="h-5 w-5" /> Dúvidas Frequentes
               </button>
             </div>
             <div className="order-1 lg:order-2 flex flex-col items-center">
@@ -579,8 +502,8 @@ function App() {
         </div>
       </footer>
 
-      {/* Drawer com botão Pré-avaliação */}
-      <div className={`fixed inset-y-0 right-0 z-30 w-full max-w-md transition-transform duration-500 ${selectedZone && !showFormModal ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* ✅ DRAWER - COM BOTÃO VISÍVEL */}
+      <div className={`fixed inset-y-0 right-0 z-30 w-full max-w-md transition-transform duration-500 ${selectedZone && !showFormModal && !showFAQModal ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedZone(null)} />
         <div ref={drawerContentRef} className="relative ml-auto w-full max-w-md h-full liquid-glass border-l border-white/5 bg-black/60 backdrop-blur-2xl overflow-y-auto drawer-scroll p-8">
           <button onClick={() => setSelectedZone(null)} className="sticky top-4 float-right liquid-glass h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white z-10">
@@ -610,7 +533,12 @@ function App() {
               <div className="liquid-glass rounded-xl overflow-hidden aspect-video bg-white/[0.02] flex items-center justify-center text-white/25 text-sm">
                 Vídeo em breve
               </div>
-              <button onClick={() => { resetForm(); setShowFormModal(true); }} className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 bg-teal-500/5">
+              
+              {/* ✅ BOTÃO PRÉ-AVALIAÇÃO */}
+              <button 
+                onClick={() => { resetForm(); setShowFormModal(true); }} 
+                className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 bg-teal-500/5 transition-all"
+              >
                 <ClipboardList className="h-5 w-5" /> Quero uma pré-avaliação
               </button>
             </div>
@@ -646,46 +574,56 @@ function App() {
         </div>
       )}
 
-      {/* Modal Chat IA - Laguna S 2.1 */}
-      {showChatModal && (
+      {/* Modal FAQ - Perguntas prontas */}
+      {showFAQModal && (
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowChatModal(false)} />
-          <div className="relative w-full max-w-lg liquid-glass rounded-3xl bg-black/70 backdrop-blur-2xl animate-modal-in flex flex-col" style={{ height: '600px', maxHeight: '85vh' }}>
-            <div className="flex items-center justify-between p-5 border-b border-white/5">
-              <div className="flex items-center gap-3">
-                <Bot className="h-6 w-6 text-teal-400" />
-                <div><h3 className="text-white font-medium">Assistente IA</h3><p className="text-white/40 text-xs">Laguna S 2.1</p></div>
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowFAQModal(false)} />
+          <div className="relative w-full max-w-lg liquid-glass rounded-3xl p-8 bg-black/70 backdrop-blur-2xl animate-modal-in max-h-[80vh] overflow-y-auto drawer-scroll">
+            <button onClick={() => { setShowFAQModal(false); setSelectedFAQ(null); }} className="absolute top-5 right-5 liquid-glass h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white">
+              <X className="h-4 w-4" />
+            </button>
+            <div className="space-y-4 mt-4">
+              <div className="text-center mb-6">
+                <HelpCircle className="h-10 w-10 text-teal-400 mx-auto mb-3" />
+                <h3 className="text-2xl font-medium text-white">Dúvidas Frequentes</h3>
+                <p className="text-white/50 text-sm mt-1">Selecione uma pergunta para ver a resposta</p>
               </div>
-              <button onClick={() => setShowChatModal(false)} className="liquid-glass h-8 w-8 rounded-full flex items-center justify-center text-white/50 hover:text-white"><X className="h-4 w-4" /></button>
-            </div>
-            <div className="flex-1 overflow-y-auto drawer-scroll p-5 space-y-4">
-              {chatMessages.map((msg, idx) => (
-                <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-teal-500/20 border border-teal-400/20 text-white' : 'bg-white/5 border border-white/10 text-white/80'}`}>
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  </div>
+              
+              {selectedFAQ === null ? (
+                <div className="space-y-3">
+                  {FAQ_QUESTIONS.map((faq, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedFAQ(idx)}
+                      className="liquid-glass w-full rounded-xl p-4 text-left hover:bg-teal-500/5 transition-all group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80 text-sm group-hover:text-white">{faq.question}</span>
+                        <ChevronRight className="h-4 w-4 text-teal-400 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </button>
+                  ))}
                 </div>
-              ))}
-              {chatLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-white/5 rounded-2xl px-4 py-3 flex gap-1.5">
-                    <div className="w-2 h-2 bg-teal-400/60 rounded-full animate-typing"></div>
-                    <div className="w-2 h-2 bg-teal-400/60 rounded-full animate-typing" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 bg-teal-400/60 rounded-full animate-typing" style={{ animationDelay: '0.4s' }}></div>
+              ) : (
+                <div className="space-y-4">
+                  <button
+                    onClick={() => setSelectedFAQ(null)}
+                    className="text-teal-400 text-sm hover:text-teal-300 transition-colors flex items-center gap-1"
+                  >
+                    ← Voltar para perguntas
+                  </button>
+                  <div className="liquid-glass rounded-xl p-5">
+                    <p className="text-white font-medium mb-2">{FAQ_QUESTIONS[selectedFAQ].question}</p>
+                    <p className="text-white/60 text-sm leading-relaxed">{FAQ_QUESTIONS[selectedFAQ].answer}</p>
                   </div>
+                  <button
+                    onClick={() => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Tenho uma dúvida sobre: ${FAQ_QUESTIONS[selectedFAQ].question}`, '_blank')}
+                    className="liquid-glass w-full rounded-full py-3.5 text-white font-medium flex items-center justify-center gap-2 bg-teal-500/5"
+                  >
+                    <MessageCircle className="h-5 w-5" /> Falar com Especialista
+                  </button>
                 </div>
               )}
-              <div ref={chatEndRef} />
-            </div>
-            <div className="p-5 border-t border-white/5">
-              <div className="flex gap-3">
-                <input type="text" placeholder="Digite sua dúvida..." value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={handleChatKeyDown}
-                  className="flex-1 bg-white/[0.03] border border-white/10 rounded-full px-5 py-3 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/50 text-sm" disabled={chatLoading} />
-                <button onClick={sendChatMessage} disabled={chatLoading || !chatInput.trim()}
-                  className="liquid-glass h-12 w-12 rounded-full flex items-center justify-center text-teal-400 disabled:opacity-30">
-                  {chatLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                </button>
-              </div>
             </div>
           </div>
         </div>
