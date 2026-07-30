@@ -40,11 +40,11 @@ const INSTAGRAM_URL = 'https://instagram.com';
 const FACEBOOK_URL = 'https://facebook.com';
 const YOUTUBE_URL = 'https://youtube.com';
 
-// Chave da API Gemini
-const GEMINI_API_KEY = 'AQ.Ab8RN6JiKkJuwWGc41YUPYupn2PLruHRH_q6xeXvSiMhGxpb1g';
+// SUA CHAVE REAL do OpenRouter
+const OPENROUTER_API_KEY = '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';
 
-const BODY_FRONT_IMAGE = '/assets/defrente.png';
-const BODY_BACK_IMAGE = '/assets/decosta.png';
+const BODY_FRONT_IMAGE = 'https://thumbs.dreamstime.com/b/male-anatomy-heart-18582891.jpg';
+const BODY_BACK_IMAGE = 'https://thumbs.dreamstime.com/b/human-anatomy-back-muscles-shown-red-illustration-18582891.jpg';
 
 const ZONE_VIDEOS: Record<string, string> = {
   'Cabeça e Cervical': '',
@@ -123,7 +123,7 @@ function App() {
   const [scrolled, setScrolled] = useState(false);
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { role: 'assistant', content: 'Olá! Sou o assistente virtual da FisioNew. Como posso ajudar você hoje? Pergunte sobre dores, tratamentos ou áreas específicas do corpo.' }
+    { role: 'assistant', content: 'Olá! Sou o assistente virtual da FisioNew, alimentado por IA real. Posso responder suas dúvidas sobre fisioterapia, dores, tratamentos, exercícios e muito mais. Como posso ajudar você hoje? 💚' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
@@ -199,6 +199,7 @@ function App() {
     setSelectedZone(zoneId);
   };
 
+  // IA REAL via OpenRouter com sua chave
   const sendChatMessage = async () => {
     if (!chatInput.trim() || chatLoading) return;
 
@@ -208,42 +209,44 @@ function App() {
     setChatLoading(true);
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'FisioNew'
         },
         body: JSON.stringify({
-          contents: [
+          model: 'google/gemini-2.0-flash-exp:free',
+          messages: [
             {
-              parts: [{
-                text: `Você é um assistente virtual de uma clínica de fisioterapia chamada FisioNew. Responda de forma acolhedora, profissional e direta. Limite-se a perguntas sobre fisioterapia, dores musculares, lesões ortopédicas, recuperação e bem-estar. Não dê diagnósticos médicos, sempre recomende consultar um especialista. Mantenha respostas curtas (máximo 4 frases).\n\nHistórico da conversa:\n${chatMessages.map(m => `${m.role === 'user' ? 'Usuário' : 'Assistente'}: ${m.content}`).join('\n')}\n\nUsuário: ${userMessage}`
-              }]
-            }
+              role: 'system',
+              content: 'Você é um assistente virtual de uma clínica de fisioterapia chamada FisioNew. Responda em português de forma acolhedora, profissional e direta. Fale sobre fisioterapia, dores musculares, lesões ortopédicas, recuperação e bem-estar. Não dê diagnósticos médicos, sempre recomende consultar um especialista. Respostas curtas (2-4 frases). Use emojis para ser amigável.'
+            },
+            ...chatMessages.map(m => ({ role: m.role, content: m.content })),
+            { role: 'user', content: userMessage }
           ],
-          generationConfig: {
-            maxOutputTokens: 300,
-            temperature: 0.7,
-          }
+          max_tokens: 300,
+          temperature: 0.7
         })
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Erro Gemini:', response.status, errorData);
+        console.error('Erro OpenRouter:', response.status, errorData);
         throw new Error(`Erro ${response.status}`);
       }
 
       const data = await response.json();
-      const assistantMessage = data.candidates[0].content.parts[0].text;
+      const assistantMessage = data.choices[0].message.content;
       
       setChatMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
     } catch (error) {
       console.error('Erro no chat:', error);
-      
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Desculpe, estou com dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo WhatsApp para falar com um especialista.'
+        content: 'Desculpe, estou com dificuldades técnicas no momento. Por favor, tente novamente ou fale diretamente com um especialista pelo WhatsApp. 📱'
       }]);
     } finally {
       setChatLoading(false);
@@ -305,34 +308,13 @@ function App() {
         .drawer-scroll::-webkit-scrollbar-track { background: transparent; }
         .drawer-scroll::-webkit-scrollbar-thumb { background: rgba(94, 234, 212, 0.2); border-radius: 10px; }
         .drawer-scroll::-webkit-scrollbar-thumb:hover { background: rgba(94, 234, 212, 0.4); }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInLeft {
-          from { opacity: 0; transform: translateX(-30px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fadeInRight {
-          from { opacity: 0; transform: translateX(30px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes modalIn {
-          from { opacity: 0; transform: scale(0.92) translateY(30px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 0.6; }
-          50% { opacity: 1; }
-        }
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes typing {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 1; }
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.92) translateY(30px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes typing { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
         .animate-fade-in-up { animation: fadeInUp 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
         .animate-fade-in-up-delay { animation: fadeInUp 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s forwards; opacity: 0; }
         .animate-fade-in-up-delay-2 { animation: fadeInUp 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.3s forwards; opacity: 0; }
@@ -342,22 +324,15 @@ function App() {
         .animate-pulse-subtle { animation: pulse 2s ease-in-out infinite; }
         .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
         .animate-typing { animation: typing 1.4s ease-in-out infinite; }
-        .hover-lift {
-          transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.3s ease;
-        }
-        .hover-lift:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
+        .hover-lift { transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
         .gradient-text {
           background: linear-gradient(135deg, #5eead4 0%, #2dd4bf 50%, #14b8a6 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
         }
-        .gradient-border {
-          position: relative;
-        }
+        .gradient-border { position: relative; }
         .gradient-border::after {
           content: '';
           position: absolute;
@@ -382,11 +357,7 @@ function App() {
       <div className={`fixed inset-0 z-20 md:hidden transition-all duration-500 ease-out ${menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(30px)' }}>
         <div className="flex flex-col items-center justify-center h-full gap-8">
-          {[
-            { label: 'Mapa Corporal', ref: mapSectionRef },
-            { label: 'Especializações', ref: specSectionRef },
-            { label: 'Sobre Nós', ref: aboutSectionRef },
-          ].map((item, idx) => (
+          {[{ label: 'Mapa Corporal', ref: mapSectionRef }, { label: 'Especializações', ref: specSectionRef }, { label: 'Sobre Nós', ref: aboutSectionRef }].map((item, idx) => (
             <div key={item.label} className={`transition-all duration-500 ${menuOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`} style={{ transitionDelay: `${100 + idx * 50}ms` }}>
               <button onClick={() => scrollToSection(item.ref)} className="text-2xl font-light text-white hover:text-teal-300 transition-colors tracking-wide">{item.label}</button>
             </div>
@@ -436,8 +407,7 @@ function App() {
                   <div className="liquid-glass rounded-full inline-flex items-center gap-2.5 sm:gap-3 px-3 py-1.5 sm:px-4 sm:py-2 mb-6 sm:mb-8 hover:bg-white/5 transition-all duration-500">
                     <div className="flex -space-x-2">
                       {['774909', '1222271', '1239291', '697509'].map((id, i) => (
-                        <img key={i} src={`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=100`} alt=""
-                          className="h-6 w-6 sm:h-7 sm:w-7 rounded-full border-2 border-white/20 object-cover transition-transform duration-300 hover:scale-110 hover:z-10" />
+                        <img key={i} src={`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=100`} alt="" className="h-6 w-6 sm:h-7 sm:w-7 rounded-full border-2 border-white/20 object-cover transition-transform duration-300 hover:scale-110 hover:z-10" />
                       ))}
                     </div>
                     <span className="text-xs sm:text-sm font-light text-white/70 tracking-wide">sua jornada para o bem-estar</span>
@@ -450,12 +420,10 @@ function App() {
                   Especialistas em fisioterapia ortopédica e esportiva. Descubra o que está causando sua dor e inicie seu caminho de recuperação hoje.
                 </p>
                 <div className="animate-fade-in-up-delay-2 flex flex-col sm:flex-row gap-4 mb-10">
-                  <button onClick={() => scrollToSection(mapSectionRef)}
-                    className="liquid-glass rounded-full px-8 py-4 text-white font-medium inline-flex items-center justify-center gap-2 hover:bg-teal-500/10 transition-all duration-300 text-lg group">
+                  <button onClick={() => scrollToSection(mapSectionRef)} className="liquid-glass rounded-full px-8 py-4 text-white font-medium inline-flex items-center justify-center gap-2 hover:bg-teal-500/10 transition-all duration-300 text-lg group">
                     Explorar Mapa Corporal <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
-                  <button onClick={() => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Gostaria de agendar uma avaliação.`, '_blank')}
-                    className="rounded-full px-8 py-4 bg-teal-500/10 border border-teal-400/20 text-teal-300 font-medium inline-flex items-center justify-center gap-2 hover:bg-teal-500/20 hover:border-teal-400/40 transition-all duration-300 text-lg backdrop-blur-sm">
+                  <button onClick={() => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Gostaria de agendar uma avaliação.`, '_blank')} className="rounded-full px-8 py-4 bg-teal-500/10 border border-teal-400/20 text-teal-300 font-medium inline-flex items-center justify-center gap-2 hover:bg-teal-500/20 hover:border-teal-400/40 transition-all duration-300 text-lg backdrop-blur-sm">
                     Agende sua Avaliação <ArrowRight className="h-5 w-5" />
                   </button>
                 </div>
@@ -465,29 +433,20 @@ function App() {
                   const Icon = benefit.icon;
                   return (
                     <div key={idx} className="liquid-glass rounded-2xl p-5 sm:p-6 backdrop-blur-md text-center hover-lift group cursor-default">
-                      <div className="relative inline-block mb-4">
-                        <div className="absolute inset-0 bg-teal-400/20 rounded-full blur-xl group-hover:bg-teal-400/30 transition-all duration-500"></div>
-                        <Icon className="h-8 w-8 text-teal-400 relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-                      </div>
+                      <div className="relative inline-block mb-4"><div className="absolute inset-0 bg-teal-400/20 rounded-full blur-xl group-hover:bg-teal-400/30 transition-all duration-500"></div><Icon className="h-8 w-8 text-teal-400 relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} /></div>
                       <p className="text-white/70 text-sm font-medium group-hover:text-white/90 transition-colors duration-300">{benefit.text}</p>
                     </div>
                   );
                 })}
                 <div className="liquid-glass rounded-2xl p-5 sm:p-6 backdrop-blur-md text-center col-span-2 bg-teal-500/5 hover-lift">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Sparkles className="h-5 w-5 text-teal-400 animate-pulse-subtle" />
-                    <span className="text-teal-400 text-2xl font-semibold tracking-tight">98%</span>
-                    <Sparkles className="h-5 w-5 text-teal-400 animate-pulse-subtle" />
-                  </div>
+                  <div className="flex items-center justify-center gap-2 mb-2"><Sparkles className="h-5 w-5 text-teal-400 animate-pulse-subtle" /><span className="text-teal-400 text-2xl font-semibold tracking-tight">98%</span><Sparkles className="h-5 w-5 text-teal-400 animate-pulse-subtle" /></div>
                   <p className="text-white/60 text-sm">dos pacientes recomendam nossa clínica</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-pulse-subtle hidden md:block">
-          <ChevronDown className="h-6 w-6 text-white/40" />
-        </div>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-pulse-subtle hidden md:block"><ChevronDown className="h-6 w-6 text-white/40" /></div>
       </section>
 
       {/* Body Map Section */}
@@ -497,85 +456,42 @@ function App() {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-white mb-4 tracking-tight">Mapa Corporal Interativo</h2>
           <p className="text-white/50 max-w-lg mx-auto font-light leading-relaxed">Clique em uma área do corpo para descobrir condições comuns, tratamentos e falar com um especialista.</p>
         </div>
-
         <div className="max-w-7xl mx-auto w-full">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            
             <div className="animate-fade-in-left order-2 lg:order-1">
               <div className="space-y-8">
-                <div>
-                  <h3 className="text-2xl sm:text-3xl font-light text-white mb-4 gradient-border pb-4">Como funciona nosso tratamento</h3>
-                  <p className="text-white/50 font-light leading-relaxed">Nossa metodologia é baseada em quatro pilares fundamentais que garantem sua recuperação completa e segura.</p>
-                </div>
-
+                <div><h3 className="text-2xl sm:text-3xl font-light text-white mb-4 gradient-border pb-4">Como funciona nosso tratamento</h3><p className="text-white/50 font-light leading-relaxed">Nossa metodologia é baseada em quatro pilares fundamentais que garantem sua recuperação completa e segura.</p></div>
                 <div className="space-y-4">
                   {TREATMENT_STEPS.map((step, idx) => {
                     const Icon = step.icon;
                     return (
                       <div key={idx} className="liquid-glass rounded-2xl p-5 hover-lift transition-all duration-300 group cursor-default">
                         <div className="flex gap-4">
-                          <div className="flex-shrink-0 relative">
-                            <div className="absolute inset-0 bg-teal-400/20 rounded-full blur-lg group-hover:bg-teal-400/30 transition-all duration-500"></div>
-                            <div className="relative z-10 w-10 h-10 rounded-full bg-teal-500/10 border border-teal-400/20 flex items-center justify-center">
-                              <Icon className="h-5 w-5 text-teal-400" strokeWidth={1.5} />
-                            </div>
-                            {idx < TREATMENT_STEPS.length - 1 && (
-                              <div className="absolute top-12 left-5 w-px h-6 bg-gradient-to-b from-teal-400/30 to-transparent"></div>
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="text-white font-medium mb-1 group-hover:text-teal-300 transition-colors duration-300">{step.title}</h4>
-                            <p className="text-white/40 text-sm font-light leading-relaxed">{step.desc}</p>
-                          </div>
+                          <div className="flex-shrink-0 relative"><div className="absolute inset-0 bg-teal-400/20 rounded-full blur-lg group-hover:bg-teal-400/30 transition-all duration-500"></div><div className="relative z-10 w-10 h-10 rounded-full bg-teal-500/10 border border-teal-400/20 flex items-center justify-center"><Icon className="h-5 w-5 text-teal-400" strokeWidth={1.5} /></div>{idx < TREATMENT_STEPS.length - 1 && <div className="absolute top-12 left-5 w-px h-6 bg-gradient-to-b from-teal-400/30 to-transparent"></div>}</div>
+                          <div><h4 className="text-white font-medium mb-1 group-hover:text-teal-300 transition-colors duration-300">{step.title}</h4><p className="text-white/40 text-sm font-light leading-relaxed">{step.desc}</p></div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-
-                <button onClick={() => setShowChatModal(true)}
-                  className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 transition-all duration-300 group">
-                  <Bot className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
-                  Tirar dúvidas com IA
+                <button onClick={() => setShowChatModal(true)} className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 transition-all duration-300 group">
+                  <Bot className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" /> Tirar dúvidas com IA
                 </button>
               </div>
             </div>
-
             <div className="animate-fade-in-right order-1 lg:order-2 flex flex-col items-center">
               <div className="liquid-glass rounded-full p-1 flex mb-8">
-                <button onClick={() => setActiveView('front')}
-                  className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${activeView === 'front' ? 'bg-white/10 text-white shadow-lg shadow-teal-400/10' : 'text-white/40 hover:text-white/70'}`}>
-                  Frente
-                </button>
-                <button onClick={() => setActiveView('back')}
-                  className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${activeView === 'back' ? 'bg-white/10 text-white shadow-lg shadow-teal-400/10' : 'text-white/40 hover:text-white/70'}`}>
-                  Costas
-                </button>
+                <button onClick={() => setActiveView('front')} className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${activeView === 'front' ? 'bg-white/10 text-white shadow-lg shadow-teal-400/10' : 'text-white/40 hover:text-white/70'}`}>Frente</button>
+                <button onClick={() => setActiveView('back')} className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${activeView === 'back' ? 'bg-white/10 text-white shadow-lg shadow-teal-400/10' : 'text-white/40 hover:text-white/70'}`}>Costas</button>
               </div>
-
               <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[400px] mx-auto">
                 <div className="liquid-glass rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-md bg-black/10 relative hover-lift transition-all duration-500">
                   <div className="relative w-full max-w-[260px] sm:max-w-[280px] md:max-w-[300px] mx-auto">
-                    <img 
-                      src={activeView === 'front' ? BODY_FRONT_IMAGE : BODY_BACK_IMAGE}
-                      alt={activeView === 'front' ? 'Corpo humano vista frontal' : 'Corpo humano vista costas'}
-                      className="w-full h-auto opacity-85 pointer-events-none"
-                      style={{ filter: 'brightness(1.1) contrast(0.95)' }}
-                      loading="lazy"
-                    />
-                    <svg viewBox="0 0 400 700" className="absolute inset-0 w-full h-full"
-                      aria-label="Mapa corporal interativo"
-                      onMouseMove={(e) => {
-                        const target = e.target as SVGElement;
-                        const zoneId = target.getAttribute('data-zone-id');
-                        setHoveredZone(zoneId || null);
-                      }}
+                    <img src={activeView === 'front' ? BODY_FRONT_IMAGE : BODY_BACK_IMAGE} alt={activeView === 'front' ? 'Corpo humano vista frontal' : 'Corpo humano vista costas'} className="w-full h-auto opacity-85 pointer-events-none" style={{ filter: 'brightness(1.1) contrast(0.95)' }} loading="lazy" />
+                    <svg viewBox="0 0 400 700" className="absolute inset-0 w-full h-full" aria-label="Mapa corporal interativo"
+                      onMouseMove={(e) => { const target = e.target as SVGElement; const zoneId = target.getAttribute('data-zone-id'); setHoveredZone(zoneId || null); }}
                       onMouseLeave={() => setHoveredZone(null)}
-                      onClick={(e) => {
-                        const target = e.target as SVGElement;
-                        const zoneId = target.getAttribute('data-zone-id');
-                        if (zoneId) handleZoneClick(zoneId);
-                      }}>
+                      onClick={(e) => { const target = e.target as SVGElement; const zoneId = target.getAttribute('data-zone-id'); if (zoneId) handleZoneClick(zoneId); }}>
                       {activeView === 'front' ? (
                         <g className={hoveredZone ? 'zone-dimmed' : ''}>
                           <ellipse data-zone-id="head_neck" cx="200" cy="60" rx="55" ry="65" className="body-zone" />
@@ -638,10 +554,7 @@ function App() {
             const Icon = spec.icon;
             return (
               <div key={idx} className="liquid-glass rounded-2xl p-6 sm:p-7 backdrop-blur-md hover-lift group cursor-default transition-all duration-300">
-                <div className="relative inline-block mb-5">
-                  <div className="absolute inset-0 bg-teal-400/20 rounded-full blur-xl group-hover:bg-teal-400/30 transition-all duration-500"></div>
-                  <Icon className="h-8 w-8 text-teal-400 relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-                </div>
+                <div className="relative inline-block mb-5"><div className="absolute inset-0 bg-teal-400/20 rounded-full blur-xl group-hover:bg-teal-400/30 transition-all duration-500"></div><Icon className="h-8 w-8 text-teal-400 relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} /></div>
                 <h3 className="text-xl font-medium text-white mb-3 group-hover:text-teal-300 transition-colors duration-300">{spec.title}</h3>
                 <p className="text-white/50 font-light leading-relaxed">{spec.desc}</p>
               </div>
@@ -694,9 +607,7 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <svg width="28" height="28" viewBox="0 0 256 256" fill="white" className="opacity-80">
-                  <path d="M 128 128 C 198.692 128 256 185.308 256 256 L 151.883 256 C 149.812 220.307 120.213 192 84 192 C 47.787 192 18.188 220.307 16.117 256 L 0 256 C 0 185.308 57.308 128 128 128 Z M 104.117 0 C 106.188 35.694 135.787 64 172 64 C 208.213 64 237.812 35.694 239.883 0 L 256 0 C 256 70.692 198.692 128 128 128 C 57.308 128 0 70.692 0 0 Z" />
-                </svg>
+                <svg width="28" height="28" viewBox="0 0 256 256" fill="white" className="opacity-80"><path d="M 128 128 C 198.692 128 256 185.308 256 256 L 151.883 256 C 149.812 220.307 120.213 192 84 192 C 47.787 192 18.188 220.307 16.117 256 L 0 256 C 0 185.308 57.308 128 128 128 Z M 104.117 0 C 106.188 35.694 135.787 64 172 64 C 208.213 64 237.812 35.694 239.883 0 L 256 0 C 256 70.692 198.692 128 128 128 C 57.308 128 0 70.692 0 0 Z" /></svg>
                 <span className="text-white/80 font-medium text-xl tracking-tight">FisioNew</span>
               </div>
               <p className="text-white/40 text-sm font-light leading-relaxed">Recupere seu movimento natural com excelência e cuidado.</p>
@@ -721,29 +632,14 @@ function App() {
       <div className={`fixed inset-y-0 right-0 z-30 w-full max-w-md transition-all duration-500 ease-out transform ${selectedZone && !showFormModal ? 'translate-x-0 shadow-2xl' : 'translate-x-full'}`}>
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-500" onClick={() => setSelectedZone(null)} />
         <div ref={drawerContentRef} className="relative ml-auto w-full max-w-md h-full liquid-glass border-l border-white/5 bg-black/60 backdrop-blur-2xl overflow-y-auto drawer-scroll p-8">
-          <button onClick={() => setSelectedZone(null)} className="sticky top-4 float-right liquid-glass h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300 z-10" aria-label="Fechar painel">
-            <X className="h-4 w-4" />
-          </button>
+          <button onClick={() => setSelectedZone(null)} className="sticky top-4 float-right liquid-glass h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300 z-10" aria-label="Fechar painel"><X className="h-4 w-4" /></button>
           {currentZoneData && (
             <div className="mt-12 space-y-8 pb-8">
-              <div>
-                <span className="text-teal-400/70 text-xs font-medium tracking-widest uppercase">Área selecionada</span>
-                <h3 className="text-2xl font-medium text-white mt-1">{currentZoneData.title}</h3>
-              </div>
+              <div><span className="text-teal-400/70 text-xs font-medium tracking-widest uppercase">Área selecionada</span><h3 className="text-2xl font-medium text-white mt-1">{currentZoneData.title}</h3></div>
               <div className="space-y-6">
-                <div className="liquid-glass rounded-xl p-5">
-                  <span className="text-xs text-white/40 uppercase tracking-wider font-medium">Problema comum</span>
-                  <p className="text-white/80 font-light mt-1">{currentZoneData.problem}</p>
-                </div>
-                <div className="liquid-glass rounded-xl p-5">
-                  <span className="text-xs text-white/40 uppercase tracking-wider font-medium">Tempo estimado de recuperação</span>
-                  <p className="text-white/80 font-light mt-1">{currentZoneData.recovery}</p>
-                  <p className="text-xs text-white/25 mt-2 font-light">*Estimativa geral, pode variar por caso.</p>
-                </div>
-                <div className="liquid-glass rounded-xl p-5">
-                  <span className="text-xs text-white/40 uppercase tracking-wider font-medium">Método sugerido</span>
-                  <p className="text-white/80 font-light mt-1">{currentZoneData.method}</p>
-                </div>
+                <div className="liquid-glass rounded-xl p-5"><span className="text-xs text-white/40 uppercase tracking-wider font-medium">Problema comum</span><p className="text-white/80 font-light mt-1">{currentZoneData.problem}</p></div>
+                <div className="liquid-glass rounded-xl p-5"><span className="text-xs text-white/40 uppercase tracking-wider font-medium">Tempo estimado de recuperação</span><p className="text-white/80 font-light mt-1">{currentZoneData.recovery}</p><p className="text-xs text-white/25 mt-2 font-light">*Estimativa geral, pode variar por caso.</p></div>
+                <div className="liquid-glass rounded-xl p-5"><span className="text-xs text-white/40 uppercase tracking-wider font-medium">Método sugerido</span><p className="text-white/80 font-light mt-1">{currentZoneData.method}</p></div>
               </div>
               <div className="liquid-glass rounded-xl overflow-hidden aspect-video">
                 {ZONE_VIDEOS[currentZoneData.title] ? (
@@ -752,8 +648,7 @@ function App() {
                   <div className="w-full h-full flex items-center justify-center bg-white/[0.02] text-white/25 text-sm font-light">Vídeo demonstrativo em breve</div>
                 )}
               </div>
-              <button onClick={() => { resetForm(); setShowFormModal(true); }}
-                className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 transition-all duration-300 group">
+              <button onClick={() => { resetForm(); setShowFormModal(true); }} className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-teal-500/10 transition-all duration-300 group">
                 <ClipboardList className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" /> Quero uma pré-avaliação
               </button>
             </div>
@@ -766,23 +661,15 @@ function App() {
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowFormModal(false)} />
           <div className="relative w-full max-w-md liquid-glass rounded-3xl p-8 bg-black/70 backdrop-blur-2xl animate-modal-in max-h-[90vh] overflow-y-auto drawer-scroll shadow-2xl shadow-teal-400/5">
-            <button onClick={() => setShowFormModal(false)} className="absolute top-5 right-5 liquid-glass h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300" aria-label="Fechar formulário">
-              <X className="h-4 w-4" />
-            </button>
+            <button onClick={() => setShowFormModal(false)} className="absolute top-5 right-5 liquid-glass h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300" aria-label="Fechar formulário"><X className="h-4 w-4" /></button>
             <div className="space-y-8">
-              <div className="text-center">
-                <div className="relative inline-block mb-4"><div className="absolute inset-0 bg-teal-400/20 rounded-full blur-xl"></div><ClipboardList className="h-10 w-10 text-teal-400 relative z-10" /></div>
-                <h3 className="text-2xl font-medium text-white">Pré-avaliação Rápida</h3>
-                {currentZoneData && <p className="text-teal-400/70 text-sm mt-2 font-light">Área selecionada: {currentZoneData.title}</p>}
-              </div>
+              <div className="text-center"><div className="relative inline-block mb-4"><div className="absolute inset-0 bg-teal-400/20 rounded-full blur-xl"></div><ClipboardList className="h-10 w-10 text-teal-400 relative z-10" /></div><h3 className="text-2xl font-medium text-white">Pré-avaliação Rápida</h3>{currentZoneData && <p className="text-teal-400/70 text-sm mt-2 font-light">Área selecionada: {currentZoneData.title}</p>}</div>
               <div className="space-y-5">
                 <div><label className="text-xs text-white/50 mb-2 block font-medium tracking-wider uppercase">Nome</label><input type="text" placeholder="Seu nome completo" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-teal-400/50 transition-all duration-300" /></div>
                 <div><label className="text-xs text-white/50 mb-2 block font-medium tracking-wider uppercase">Idade</label><input type="number" placeholder="Sua idade" value={idade} onChange={(e) => setIdade(e.target.value)} className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-teal-400/50 transition-all duration-300" /></div>
                 <div><label className="text-xs text-white/50 mb-2 block font-medium tracking-wider uppercase">O que você está sentindo?</label><textarea placeholder="Descreva brevemente sua dor ou desconforto..." value={sintoma} onChange={(e) => setSintoma(e.target.value)} rows={4} className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-teal-400/50 transition-all duration-300 resize-none" /></div>
                 {formError && <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4"><p className="text-red-400 text-sm font-light">{formError}</p></div>}
-                <button onClick={handleWhatsApp} className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-3 hover:bg-teal-500/10 transition-all duration-300 bg-teal-500/5 group">
-                  <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" /> Enviar para Especialista
-                </button>
+                <button onClick={handleWhatsApp} className="liquid-glass w-full rounded-full py-4 text-white font-medium flex items-center justify-center gap-3 hover:bg-teal-500/10 transition-all duration-300 bg-teal-500/5 group"><Send className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" /> Enviar para Especialista</button>
                 <p className="text-center text-white/20 text-xs font-light">Suas informações estão seguras e serão enviadas via WhatsApp</p>
               </div>
             </div>
@@ -790,27 +677,18 @@ function App() {
         </div>
       )}
 
-      {/* Modal de Chat com IA (Gemini) */}
+      {/* Modal de Chat com IA REAL */}
       {showChatModal && (
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowChatModal(false)} />
           <div className="relative w-full max-w-lg liquid-glass rounded-3xl bg-black/70 backdrop-blur-2xl animate-modal-in shadow-2xl shadow-teal-400/5 flex flex-col" style={{ height: '600px', maxHeight: '85vh' }}>
             <div className="flex items-center justify-between p-5 border-b border-white/5">
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-teal-400/20 rounded-full blur-lg"></div>
-                  <Bot className="h-6 w-6 text-teal-400 relative z-10" />
-                </div>
-                <div>
-                  <h3 className="text-white font-medium">Assistente Virtual</h3>
-                  <p className="text-white/40 text-xs font-light">Tire suas dúvidas sobre fisioterapia</p>
-                </div>
+                <div className="relative"><div className="absolute inset-0 bg-teal-400/20 rounded-full blur-lg"></div><Bot className="h-6 w-6 text-teal-400 relative z-10" /></div>
+                <div><h3 className="text-white font-medium">Assistente Virtual IA</h3><p className="text-white/40 text-xs font-light">Tire suas dúvidas sobre fisioterapia</p></div>
               </div>
-              <button onClick={() => setShowChatModal(false)} className="liquid-glass h-8 w-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300">
-                <X className="h-4 w-4" />
-              </button>
+              <button onClick={() => setShowChatModal(false)} className="liquid-glass h-8 w-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300"><X className="h-4 w-4" /></button>
             </div>
-
             <div className="flex-1 overflow-y-auto drawer-scroll p-5 space-y-4">
               {chatMessages.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -832,23 +710,12 @@ function App() {
               )}
               <div ref={chatEndRef} />
             </div>
-
             <div className="p-5 border-t border-white/5">
               <div className="flex gap-3">
-                <input
-                  type="text"
-                  placeholder="Digite sua dúvida..."
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={handleChatKeyDown}
-                  className="flex-1 bg-white/[0.03] border border-white/10 rounded-full px-5 py-3 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/50 transition-all duration-300 text-sm"
-                  disabled={chatLoading}
-                />
-                <button
-                  onClick={sendChatMessage}
-                  disabled={chatLoading || !chatInput.trim()}
-                  className="liquid-glass h-12 w-12 rounded-full flex items-center justify-center text-teal-400 hover:bg-teal-500/10 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
-                >
+                <input type="text" placeholder="Digite sua dúvida..." value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={handleChatKeyDown}
+                  className="flex-1 bg-white/[0.03] border border-white/10 rounded-full px-5 py-3 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/50 transition-all duration-300 text-sm" disabled={chatLoading} />
+                <button onClick={sendChatMessage} disabled={chatLoading || !chatInput.trim()}
+                  className="liquid-glass h-12 w-12 rounded-full flex items-center justify-center text-teal-400 hover:bg-teal-500/10 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">
                   {chatLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                 </button>
               </div>
